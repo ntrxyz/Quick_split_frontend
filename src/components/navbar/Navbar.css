@@ -1,0 +1,96 @@
+/* Navbar Container */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #282c34;
+    padding: 10px 20px;
+    color: white;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+  
+  /* Logo and Title Container */
+  .logo-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Logo Image Styling */
+  .app-logo {
+    height: 40px;
+    width: auto;
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+  
+  /* Navigation Buttons */
+  .nav-btn {
+    text-decoration: none;
+    color: white;
+    margin: 0 15px;
+    padding: 8px 12px;
+    background-color: #61dafb;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+  }
+  
+  .nav-btn:hover {
+    background-color: #21a1f1;
+  }
+  
+  .signup {
+    background-color: #61dafb;
+  }
+  
+  .signup:hover {
+    background-color:#21a1f1;
+  }
+  
+  /* Mobile Responsive Styles */
+  @media screen and (max-width: 768px) {
+    .navbar {
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+  
+    .logo-container {
+      width: 100%;
+      justify-content: center;
+    }
+  
+    .app-logo {
+      height: 35px;
+      margin: 5px;
+    }
+  
+    /* Navigation Menu */
+    .nav-btn {
+      display: block;
+      margin: 10px auto;
+      text-align: center;
+      width: 100px;
+    }
+  }
+  
+  /* Small Screens (Phones) */
+  @media screen and (max-width: 480px) {
+    .navbar {
+      padding: 5px;
+    }
+  
+    .app-logo {
+      height: 30px;
+    }
+  
+    .nav-btn {
+      width: 90px;
+      font-size: 14px;
+      padding: 6px 10px;
+    }
+  }
+  
