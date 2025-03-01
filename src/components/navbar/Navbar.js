@@ -9,7 +9,7 @@ const Navbar = () => {
       {/* Logo and Title */}
       <div className="logo-container">
         <img src={logo} alt="App Logo" className="app-logo" />
-        <h1>Quick Split</h1>
+        <h1>Quick-Split</h1>
       </div>
 
       {/* Navigation Links */}

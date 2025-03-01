@@ -1,7 +1,136 @@
 .footer {
-    padding: 15px;
-    background: #333;
-    color: white;
+  background: #1a1a1a;
+  color: white;
+  padding: 50px 0 20px;
+  font-family: "Arial", sans-serif;
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 40px;
+}
+
+/* Left Section - Logo & About */
+.footer-left {
+  flex: 1.2;
+  min-width: 300px;
+  text-align: left;
+}
+
+.logofooter {
+  height: 50px;
+  margin-bottom: 15px;
+}
+
+.footer-left h2 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.footer-left p {
+  font-size: 14px;
+  color: #bbb;
+  max-width: 250px;
+  line-height: 1.5;
+}
+
+/* Center Sections - About, Support, Contact */
+.footer-section {
+  flex: 1;
+  min-width: 200px;
+  text-align: left;
+}
+
+.footer-section h3 {
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 8px;
+}
+
+.footer-section ul li a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s;
+}
+
+.footer-section ul li a:hover {
+  color: #4CAF50;
+}
+
+/* Bottom Section - Google Play (Left), Footer Text (Center), Apple Store (Right) */
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 30px auto 0;
+  padding: 15px 40px;
+  border-top: 1px solid #444;
+  font-size: 14px;
+  color: #bbb;
+}
+
+/* Ensures Google Play aligns left and Apple Store aligns right */
+.footer-bottom img {
+  height: 45px;
+  transition: transform 0.3s ease;
+}
+
+.footer-bottom img:hover {
+  transform: scale(1.1);
+}
+
+/* Centering text */
+.footer-bottom p {
+  font-size: large;
+  text-align: center;
+  flex-grow: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
     text-align: center;
   }
-  
+
+  .footer-left,
+  .footer-section,
+  .footer-download {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .app-icons {
+    justify-content: center;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-bottom p {
+    order: 2;
+    margin: 15px 0;
+  }
+
+  .footer-bottom img {
+    order: 1;
+    margin-bottom: 10px;
+  }
+}
