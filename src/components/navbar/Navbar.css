@@ -1,96 +1,130 @@
 /* Navbar Container */
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #282c34;
-    padding: 10px 20px;
-    color: white;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background: white;
+  position: fixed;
+  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Logo Styling */
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.app-logo {
+  height: 50px;
+  margin-right: 12px;
+  margin-left: 10px;
+}
+
+/* Navigation Links */
+.nav-links {
+  display: flex;
+  align-items: center;
+  list-style: none;
+}
+
+.nav-item {
+  text-decoration: none;
+  color: whitesmoke;
+  margin: 0 15px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.3s ease-in-out;
+  position: relative;
+}
+
+.nav-item:hover {
+  color: #4caf50;
+}
+
+.nav-item::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 0;
+  height: 3px;
+  background: #4caf50;
+  transition: width 0.3s ease-in-out, left 0.3s ease-in-out;
+}
+
+.nav-item:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+/* Buttons */
+.nav-btn {
+  text-decoration: none;
+  color: white;
+  margin: 0 10px;
+  margin-top: 50px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #4caf50, #388e3c); /* Green gradient */
+  transition: transform 0.2s, background 0.3s ease-in-out;
+}
+
+.nav-btn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #388e3c, #2e7d32);
+}
+
+.signup {
+  background: linear-gradient(135deg, #4caf50, #388e3c); /* Darker green gradient */
+}
+
+.signup:hover {
+  background: linear-gradient(135deg, #388e3c, #2e7d32);
+}
+
+/* Mobile Menu Icon */
+.menu-icon {
+  display: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: white;
+}
+
+/* Mobile Styles */
+@media screen and (max-width: 768px) {
+  .menu-icon {
+    display: block;
   }
-  
-  /* Logo and Title Container */
-  .logo-container {
-    display: flex;
-    align-items: center;
+
+  .nav-links {
+    position: absolute;
+    top: 80px;
+    right: 0;
+    width: 80%;
+    height: auto;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+    flex-direction: column;
+    transform: translateY(-150%);
+    transition: transform 0.4s ease-in-out;
   }
-  
-  /* Logo Image Styling */
-  .app-logo {
-    height: 40px;
-    width: auto;
-    margin-right: 10px;
-    margin-left: 10px;
+
+  .nav-links.open {
+    transform: translateY(0);
   }
-  
-  /* Navigation Buttons */
+
+  .nav-item,
   .nav-btn {
-    text-decoration: none;
-    color: white;
-    margin: 0 15px;
-    padding: 8px 12px;
-    background-color: #28a745;
-    border-radius: 5px;
-    transition: background 0.3s ease;
+    display: block;
+    text-align: center;
+    margin: 15px 0;
   }
-  
-  .nav-btn:hover {
-    background-color: #218838;
-  }
-  
-  .signup {
-    background-color: #28a745;
-  }
-  
-  .signup:hover {
-    background-color:#218838;
-  }
-  
-  /* Mobile Responsive Styles */
-  @media screen and (max-width: 768px) {
-    .navbar {
-      flex-direction: column;
-      align-items: center;
-      padding: 10px;
-    }
-  
-    .logo-container {
-      width: 100%;
-      justify-content: center;
-    }
-  
-    .app-logo {
-      height: 35px;
-      margin: 5px;
-    }
-  
-    /* Navigation Menu */
-    .nav-btn {
-      display: block;
-      margin: 10px auto;
-      text-align: center;
-      width: 100px;
-    }
-  }
-  
-  /* Small Screens (Phones) */
-  @media screen and (max-width: 480px) {
-    .navbar {
-      padding: 5px;
-    }
-  
-    .app-logo {
-      height: 30px;
-    }
-  
-    .nav-btn {
-      width: 90px;
-      font-size: 14px;
-      padding: 6px 10px;
-    }
-  }
-  
+}

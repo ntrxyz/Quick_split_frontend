@@ -1,6 +1,6 @@
 import React from "react";
 import "./Footer.css";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/logo.jpeg";
 import googleplay from "../../assets/googleplay.png";
 import appleplay from "../../assets/appleplay.png";
 

@@ -5,7 +5,7 @@ import { Container, Card, Button } from "react-bootstrap"; // Bootstrap Componen
 import "./Home.css"; // Import CSS for Home Page styling
 import Navbar from "../../components/navbar/Navbar";
 import Footer from "../../components/footer/Footer";
-import heroBg from "../../assets/finance.jpeg";
+import wallpaper from "../../assets/wallpaper.jpeg";
 import trackimg from "../../assets/indimg.jpeg";
 import friendimg from "../../assets/friendsimg.jpeg";
 import reportimg from "../../assets/reportimg.jpeg";
@@ -18,13 +18,13 @@ const Home = () => {
       {/* Hero Section */}
       <header
         className="hero"
-        style={{ backgroundImage: `url(${heroBg})`, backgroundSize: "cover" }}
+        style={{ backgroundImage: `url(${wallpaper})`, backgroundSize: "cover" }}
       >
         <Container>
           <div className="hero-content">
             <h2>Manage Your Finances Smarter</h2>
             <p>Track expenses, analyze reports, and settle payments with ease.</p>
-            <Link to="/signup" className="cta-btn">
+            <Link to="/login" className="cta-btn">
               Get Started
             </Link>
           </div>
