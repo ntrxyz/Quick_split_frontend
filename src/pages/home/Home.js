@@ -42,7 +42,7 @@ const Home = () => {
             <Card.Body>
               <h4>💰 Track Expenses</h4>
               <p>Never forget who owes whom.</p>
-              <Link to="/dashboard" type="button" className="btn btn-outline-success">Track</Link>
+              <Link to="/login" type="button" className="btn btn-outline-success">Track</Link>
             </Card.Body>
           </Card>
           <Card style={{ width: "18rem" }} className="feature-card">
@@ -50,7 +50,7 @@ const Home = () => {
             <Card.Body>
               <h4>📊 Clear Reports</h4>
               <p>Understand your spending habits.</p>
-              <Link to="/dashboard" type="button" className="btn btn-outline-success">Reports</Link>
+              <Link to="/login" type="button" className="btn btn-outline-success">Reports</Link>
             </Card.Body>
           </Card>
           <Card style={{ width: "18rem" }} className="feature-card">
@@ -58,7 +58,7 @@ const Home = () => {
             <Card.Body>
               <h4>🔄 Settle Easily</h4>
               <p>Quickly pay back friends.</p>
-              <Link to="/dashboard" type="button" className="btn btn-outline-success">Settle</Link>
+              <Link to="/login" type="button" className="btn btn-outline-success">Settle</Link>
             </Card.Body>
           </Card>
         </div>
