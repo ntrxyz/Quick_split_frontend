@@ -1,0 +1,160 @@
+/* Reports.css */
+
+.reports-container {
+    padding: 20px;
+    background: url('../../assets/reportimg.jpeg') no-repeat center center/cover;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+  
+  .summary-cards {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .card {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s;
+    backdrop-filter: blur(10px);
+    min-width: 200px;
+    max-width: 300px;
+  }
+  
+  .card:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 14px rgba(0, 0, 0, 0.4);
+  }
+  
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .card-value {
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+  
+  .report-details {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 1300px;
+    flex-wrap: wrap;
+  }
+  
+  .chart-container {
+    width: 100%;
+    height: 300px; /* Adjusted for better display */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .chart-box {
+    width: 48%;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    min-height: 350px; /* Increased height for better visibility */
+  }
+  
+  
+  .transaction-table {
+    width: 48%;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+  
+  .transaction-table table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+  }
+  
+  .transaction-table th, .transaction-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .transaction-table th {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .transaction-table tr:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .paid {
+    color: #4caf50;
+    font-weight: bold;
+  }
+  
+  .pending {
+    color: #ff9800;
+    font-weight: bold;
+  }
+  
+  .button-container {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+  }
+  
+  .action-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+  
+  .export-btn {
+    background: #007bff;
+    color: white;
+  }
+  
+  .export-btn:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+  }
+  
+  .delete-btn {
+    background: #ff4d4d;
+    color: white;
+  }
+  
+  .delete-btn:hover {
+    background: #cc0000;
+    transform: scale(1.05);
+  }
+  
+ 
