@@ -1,0 +1,225 @@
+
+
+/* Layout */
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 270px;
+    background: #1a3b58;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Logo & Title */
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.app-logo {
+    height: 45px;
+    width: 45px;
+    border-radius: 50%;
+}
+
+/* Sidebar Links */
+.sidebar h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.sidebar nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar nav ul li {
+    padding: 12px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+    border-radius: 5px;
+}
+
+.sidebar nav ul li:hover,
+.sidebar nav ul .active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Groups & Friends */
+.groups, .friends {
+    margin-top: 20px;
+}
+
+.invite-btn {
+    margin-top: 15px;
+    padding: 10px;
+    border: none;
+    background:#1a3b58 ;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease-in-out;
+}
+
+.invite-btn:hover {
+    background: #0f2a41;
+}
+
+/* Main Dashboard */
+.dashboard {
+    flex: 1;
+    padding: 20px;
+    backdrop-filter: blur(5px);
+}
+
+/* Header */
+.dashboard header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.add-expense, .settle-up {
+    padding: 10px 15px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease-in-out;
+}
+
+.add-expense {
+    background: #ff7043;
+}
+
+.add-expense:hover {
+    background: #e65c33;
+}
+
+.settle-up {
+    background: #43a047;
+}
+
+.settle-up:hover {
+    background: #388e3c;
+}
+
+/* Balance Summary */
+.balance-summary {
+    display: flex;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.positive {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.neutral {
+    color: #ff7043;
+}
+
+/* Transactions */
+.transactions {
+    margin-top: 20px;
+}
+
+.transactions ul {
+    list-style: none;
+    padding: 0;
+}
+
+.transactions li {
+    display: flex;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 12px;
+    border-radius: 5px;
+    margin-top: 5px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.owed {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+/* ========================== */
+/* 🎨 MODAL STYLING (NEW) 🎨 */
+/* ========================== */
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background: #1a3b58;
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-body label {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.modal-body input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    color: white;
+}
+
+.btn-secondary {
+    background: #757575;
+    border: none;
+}
+
+.btn-success {
+    background: #43a047;
+    border: none;
+}
+
+.btn-danger {
+    background: #e65c33;
+    border: none;
+}
