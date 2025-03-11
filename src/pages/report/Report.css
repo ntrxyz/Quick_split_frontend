@@ -1,4 +1,5 @@
 .reports-container {
+  margin-top: 20px;
   padding: 20px;
   background: url('../../assets/reportimg.jpeg') no-repeat center center/cover;
   min-height: 100vh;
@@ -7,6 +8,7 @@
   align-items: center;
   color: #fff;
   font-family: 'Poppins', sans-serif;
+   border-radius: 10px;
 }
 
 h2 {

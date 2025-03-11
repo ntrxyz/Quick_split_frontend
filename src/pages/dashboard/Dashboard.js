@@ -4,10 +4,13 @@ import logo from "../../assets/logo.jpeg"; // App logo
 import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap for modal
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import { FaTrash } from "react-icons/fa";
+import Profile from "../profile/Profile";
+import Report from "../report/Report";
 
 const users = ["Alice", "Bob", "Charlie", "David"]; // Sample users
 
 const Dashboard = () => {
+  const [activeTab, setActiveTab] = useState("dashboard"); 
   const [expense, setExpense] = useState({
     description: "",
     amount: "",
@@ -58,22 +61,28 @@ const Dashboard = () => {
         </div>
         <nav>
           <ul className="my-2">
-            <li>Profile</li>
-            <li className="active my-2">Dashboard</li>
-            <li className="my-2">Recent Activity</li>
-            <li className="my-2">All Expenses</li>
-            <li className="my-2">Reports</li>
+            <li className={`my-2 ${activeTab === "profile" ? "active" : ""}`} onClick={() => setActiveTab("profile")}>Profile</li>
+            <li className={`my-2 ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => setActiveTab("dashboard")}>Dashboard</li>
+            <li className={`my-2 ${activeTab === "recent" ? "active" : ""}`} onClick={() => setActiveTab("expenses")}>Recent Activity</li>
+            <li className={`my-2 ${activeTab === "expenses" ? "active" : ""}`} onClick={() => setActiveTab("expenses")}>All Expenses</li>
+            <li className={`my-2 ${activeTab === "reports" ? "active" : ""}`} onClick={() => setActiveTab("reports")}>Reports</li>
+            <li className={`my-2 ${activeTab === "settings" ? "active" : ""}`} onClick={() => setActiveTab("reports")}>Settings</li>
           </ul>
         </nav>
         <div className="groups">
           <h3>Groups</h3>
           <p>Group A</p>
           <p>Group B</p>
+          <p>Group B</p>
+          <p>Group B</p>
+          <p>Group B</p>
+          <p>Group B</p>
         </div>
       </aside>
 
       {/* Main Dashboard */}
       <main className="dashboard">
+      
         <header>
           <h2>Dashboard</h2>
           <div>
@@ -84,6 +93,8 @@ const Dashboard = () => {
             <button className="invite-btn mx-2">Add User to group</button>
           </div>
         </header>
+        {activeTab === "dashboard" && (
+          <>
         <div className="balance-summary">
           <p>
             Total Balance: <span className="positive">$302.00</span>
@@ -95,8 +106,18 @@ const Dashboard = () => {
             You Are Owed: <span className="positive">$302.00</span>
           </p>
         </div>
+        </>)}
+
+        {activeTab === "profile" && (
+          <Profile/>
+        )}
+        {activeTab === "reports" && (
+          <Report/>
+        )}
 
         {/* Transaction List */}
+        {activeTab === "expenses" && (
+          <>
         <div className="transactions">
           <h3>Expenses</h3>
           {expensesList.length === 0 ? (
@@ -135,6 +156,7 @@ const Dashboard = () => {
             </table>
           )}
         </div>
+        </>)}
       </main>
 
       {/* Expense Modal */}

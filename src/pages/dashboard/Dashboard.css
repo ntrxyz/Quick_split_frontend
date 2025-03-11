@@ -1,9 +1,7 @@
-
-
 /* Layout */
 .dashboard-container {
     display: flex;
-    height: 100vh;
+    
 }
 
 .dashboard {
@@ -76,6 +74,7 @@
 /* Groups & Friends */
 .groups, .friends {
     margin-top: 20px;
+    margin-bottom: 0px;
 }
 
 .invite-btn {

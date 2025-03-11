@@ -124,29 +124,6 @@ const Report = () => {
           </div>
         </div>
       </div>
-
-      {/* Transaction History Table */}
-      <div className="transaction-table">
-        <h3>Transaction History</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((tx) => (
-              <tr key={tx.id} className={tx.status.toLowerCase()}>
-                <td>{tx.name}</td>
-                <td>${tx.amount}</td>
-                <td>{tx.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 };
