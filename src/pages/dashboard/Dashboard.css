@@ -6,6 +6,25 @@
     height: 100vh;
 }
 
+.dashboard {
+    flex: 1;
+    padding: 20px;
+    background: url('../../assets/dashboardbg.png') no-repeat center center/cover;
+    position: relative;
+}
+
+.dashboard::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.6); /* Light overlay for better readability */
+    z-index: -1;
+}
+
+
 /* Sidebar */
 .sidebar {
     width: 270px;
@@ -175,6 +194,14 @@
     border-top-right-radius: 10px;
 }
 
+.modal-header .btn-close {
+    filter: invert(1);  /* Makes the close button white */
+    opacity: 1;
+    font-size: 18px;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+} 
 .modal-title {
     font-size: 20px;
     font-weight: bold;
@@ -188,6 +215,10 @@
     font-weight: bold;
     margin-top: 10px;
 }
+
+
+  
+  
 
 .modal-body input {
     width: 100%;
@@ -203,19 +234,222 @@
     padding: 15px;
 }
 
-.btn-close {
-    background: transparent;
-    border: none;
-    color: white;
-}
+
 
 .btn-secondary {
     background: #757575;
-    border: none;
+    border: none;/* =========================== */
+    /* 🌆 WALLPAPER BACKGROUND 🌆 */
+    /* =========================== */
+    .dashboard {
+        flex: 1;
+        padding: 20px;
+        backdrop-filter: blur(10px);
+        background: url('../../assets/finance.jpeg') no-repeat center center/cover;
+        position: relative;
+    }
+    
+    .dashboard::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.6); /* Light overlay for better readability */
+        z-index: -1;
+    }
+    
+    /* ========================== */
+    /* 🎨 IMPROVED MODAL STYLING 🎨 */
+    /* ========================== */
+    .modal-content {
+        border-radius: 12px;
+        box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease-in-out;
+        transform: scale(1);
+    }
+    
+    .modal.show .modal-content {
+        transform: scale(1.05);
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #1a3b58, #2d5b8a);
+        color: white;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        padding: 15px 20px;
+    }
+    
+    .modal-title {
+        font-size: 22px;
+        font-weight: bold;
+    }
+    
+    .modal-body {
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 0 0 12px 12px;
+    }
+    
+    .modal-body label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    
+    .modal-body input, .modal-body select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background: white;
+        transition: border-color 0.3s ease-in-out;
+    }
+    
+    .modal-body input:focus, .modal-body select:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: 15px 25px;
+        background: #f1f1f1;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+    
+    .modal-header .btn-close {
+        background: transparent;
+        border: none;
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+    
+    .btn-success {
+        background: #28a745;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        background: #218838;
+    }
+    
+    .btn-danger {
+        background: #e65c33;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-danger:hover {
+        background: #d32f2f;
+    }
+    
+    
+
+    /* ========================== */
+    /* 💰 ADVANCED EXPENSE DISPLAY 💰 */
+    /* ========================== */
+    .transactions {
+        margin-top: 20px;
+    }
+    
+    .transactions ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .transactions li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease-in-out;
+        position: relative;
+    }
+    
+    .transactions li:hover {
+        transform: scale(1.02);
+        box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Expense Category Badge */
+    .expense-category {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        background: #ff7043;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    /* Positive & Negative Styling */
+    .positive {
+        color: #4caf50;
+        font-weight: bold;
+    }
+    
+    .negative {
+        color: #e65c33;
+        font-weight: bold;
+    }
+    
+    .neutral {
+        color: #ff7043;
+        font-weight: bold;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .dashboard {
+            padding: 15px;
+        }
+    
+        .add-expense, .settle-up, .invite-btn {
+            font-size: 14px;
+            padding: 8px 12px;
+        }
+    
+        .modal-body input, .modal-body select {
+            padding: 8px;
+        }
+    }
+    
 }
 
 .btn-success {
     background: #43a047;
+    border-radius: 10px;
     border: none;
 }
 

@@ -2,13 +2,51 @@ import React, { useState } from "react";
 import "./Dashboard.css";
 import logo from "../../assets/logo.jpeg"; // App logo
 import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap for modal
+import "bootstrap/dist/js/bootstrap.bundle.min";
+import { FaTrash } from "react-icons/fa";
+
+const users = ["Alice", "Bob", "Charlie", "David"]; // Sample users
 
 const Dashboard = () => {
   const [expense, setExpense] = useState({
     description: "",
     amount: "",
     date: new Date().toISOString().split("T")[0],
+    paidBy: "You",
+    splitType: "equally",
+    participants: [],
   });
+
+  const [expensesList, setExpensesList] = useState([]); // Stores all expenses
+
+  const handleAddExpense = () => {
+    if (!expense.description || !expense.amount || expense.participants.length === 0) {
+      alert("Please fill all details and select participants!");
+      return;
+    }
+
+    setExpensesList([...expensesList, expense]); // Add expense to list
+    setExpense({
+      description: "",
+      amount: "",
+      date: new Date().toISOString().split("T")[0],
+      paidBy: "You",
+      splitType: "equally",
+      participants: [],
+    });
+
+    document.getElementById("closeExpenseModal").click(); // Close modal
+  };
+
+  const handleDeleteExpense = (index) => {
+    const updatedExpenses = expensesList.filter((_, i) => i !== index);
+    setExpensesList(updatedExpenses);
+  };
+
+  const handleParticipantsChange = (event) => {
+    const selectedOptions = Array.from(event.target.selectedOptions, (option) => option.value);
+    setExpense({ ...expense, participants: selectedOptions });
+  };
 
   return (
     <div className="dashboard-container">
@@ -20,7 +58,6 @@ const Dashboard = () => {
         </div>
         <nav>
           <ul className="my-2">
-            
             <li>Profile</li>
             <li className="active my-2">Dashboard</li>
             <li className="my-2">Recent Activity</li>
@@ -30,12 +67,9 @@ const Dashboard = () => {
         </nav>
         <div className="groups">
           <h3>Groups</h3>
-          <p>hfjfgh</p>
-          <p>hfjfgh</p>
-          <p>hfjfgh</p>
-          <p>hfjfgh</p>
+          <p>Group A</p>
+          <p>Group B</p>
         </div>
-       
       </aside>
 
       {/* Main Dashboard */}
@@ -43,11 +77,7 @@ const Dashboard = () => {
         <header>
           <h2>Dashboard</h2>
           <div>
-            <button
-              className="add-expense mx-2"
-              data-bs-toggle="modal"
-              data-bs-target="#expenseModal"
-            >
+            <button className="add-expense mx-2" data-bs-toggle="modal" data-bs-target="#expenseModal">
               Add an Expense
             </button>
             <button className="settle-up mx-2">Settle Up</button>
@@ -66,94 +96,97 @@ const Dashboard = () => {
           </p>
         </div>
 
+        {/* Transaction List */}
         <div className="transactions">
-          <h3>You Owe</h3>
-          <p>You do not owe anything</p>
-
-          <h3>You Are Owed</h3>
-          <ul>
-            <li>
-              gfg <span className="owed">$26.00</span>
-            </li>
-            <li>
-              gsdfg <span className="owed">$125.00</span>
-            </li>
-            <li>
-              wgrefe <span className="owed">$151.00</span>
-            </li>
-          </ul>
+          <h3>Expenses</h3>
+          {expensesList.length === 0 ? (
+            <p>No expenses added yet</p>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
+              <thead>
+                <tr style={{ background: "#1a3b58", color: "#fff", textTransform: "uppercase" }}>
+                  <th>Description</th>
+                  <th>Amount ($)</th>
+                  <th>Paid By</th>
+                  <th>Split Type</th>
+                  <th>Participants</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {expensesList.map((exp, index) => (
+                  <tr key={index} style={{ borderBottom: "1px solid #e0e0e0" }}>
+                    <td>{exp.description}</td>
+                    <td>{exp.amount}</td>
+                    <td style={{ color: "#f9a825", fontWeight: "bold" }}>{exp.paidBy}</td>
+                    <td style={{ color: "#f9a825", fontWeight: "bold" }}>{exp.splitType}</td>
+                    <td>{exp.participants.join(", ")}</td>
+                    <td>
+                      <button
+                        style={{ background: "none", border: "none", cursor: "pointer", color: "red" }}
+                        onClick={() => handleDeleteExpense(index)}
+                      >
+                        <FaTrash size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </main>
 
       {/* Expense Modal */}
-      <div
-        className="modal fade"
-        id="expenseModal"
-        tabIndex="-1"
-        aria-labelledby="expenseModalLabel"
-        aria-hidden="true"
-      >
+      <div className="modal fade" id="expenseModal" tabIndex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title" id="expenseModalLabel">
-                Add an Expense
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
+              <h5 className="modal-title" id="expenseModalLabel">Add an Expense</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeExpenseModal"></button>
             </div>
             <div className="modal-body">
+              {/* Description */}
               <label className="form-label">Description</label>
-              <input
-                type="text"
-                className="form-control"
-                value={expense.description}
-                onChange={(e) =>
-                  setExpense({ ...expense, description: e.target.value })
-                }
-              />
+              <input type="text" className="form-control" value={expense.description} onChange={(e) => setExpense({ ...expense, description: e.target.value })} />
 
+              {/* Amount */}
               <label className="form-label mt-3">Amount ($)</label>
-              <input
-                type="number"
-                className="form-control"
-                value={expense.amount}
-                onChange={(e) =>
-                  setExpense({ ...expense, amount: e.target.value })
-                }
-              />
+              <input type="number" className="form-control" value={expense.amount} onChange={(e) => setExpense({ ...expense, amount: e.target.value })} />
 
-              <p className="mt-3">
-                Paid by <strong>You</strong> and split <strong>equally</strong>
-              </p>
+              {/* Date */}
+              <label className="form-label mt-3">Date</label>
+              <input type="date" className="form-control" value={expense.date} onChange={(e) => setExpense({ ...expense, date: e.target.value })} />
 
-              <label className="form-label">Date</label>
-              <input
-                type="date"
-                className="form-control"
-                value={expense.date}
-                onChange={(e) =>
-                  setExpense({ ...expense, date: e.target.value })
-                }
-              />
+              {/* Paid By */}
+              <label className="form-label mt-3">Paid By</label>
+              <select className="form-control" value={expense.paidBy} onChange={(e) => setExpense({ ...expense, paidBy: e.target.value })}>
+                <option value="You">You</option>
+                {users.map((user) => (
+                  <option key={user} value={user}>{user}</option>
+                ))}
+              </select>
 
-              <button className="btn btn-secondary mt-3">Add Image/Notes</button>
+              {/* Split Type */}
+              <label className="form-label mt-3">Split Type</label>
+              <select className="form-control" value={expense.splitType} onChange={(e) => setExpense({ ...expense, splitType: e.target.value })}>
+                <option value="equally">Equally</option>
+                <option value="percentage">By Percentage</option>
+                <option value="shares">By Shares</option>
+              </select>
+
+              {/* Participants (Multi-Select) */}
+              <label className="form-label mt-3">Select Participants</label>
+              <select className="form-control" multiple value={expense.participants} onChange={handleParticipantsChange}>
+                {users.map((user) => (
+                  <option key={user} value={user}>{user}</option>
+                ))}
+              </select>
             </div>
+
             <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-danger"
-                data-bs-dismiss="modal"
-              >
-                Cancel
-              </button>
-              <button type="button" className="btn btn-success">
-                Save
-              </button>
+              <button type="button" className="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" className="btn btn-success" onClick={handleAddExpense}>Save Expense</button>
             </div>
           </div>
         </div>
