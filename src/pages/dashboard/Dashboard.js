@@ -8,6 +8,7 @@ import Profile from "../profile/Profile";
 import Report from "../report/Report";
 import profile from "../../assets/user.png";
 import logout from "../../assets/logout.png";
+import Groups from "../groups/Groups";
 
 
 const users = ["Alice", "Bob", "Charlie", "David"]; // Sample users
@@ -67,7 +68,7 @@ const Dashboard = () => {
       <aside className="sidebar">
         <div className="logo-container">
           <img src={logo} alt="App Logo" className="app-logo" />
-          <h2>Quick-Split</h2>
+          <h2 className="my-4">Quick-Split</h2>
         </div>
         <nav>
           <ul className="my-2">
@@ -107,17 +108,14 @@ const Dashboard = () => {
             >
               Settings
             </li>
+            <li
+              className={`my-2 ${activeTab === "groups" ? "active" : ""}`}
+              onClick={() => setActiveTab("groups")}
+            >
+              Groups
+            </li>
           </ul>
         </nav>
-        <div className="groups">
-          <h3>Groups</h3>
-          <p>Group A</p>
-          <p>Group B</p>
-          <p>Group B</p>
-          <p>Group B</p>
-          <p>Group B</p>
-          <p>Group B</p>
-        </div>
       </aside>
 
       {/* Main Dashboard */}
@@ -186,6 +184,7 @@ const Dashboard = () => {
 
         {activeTab === "profile" && <Profile />}
         {activeTab === "reports" && <Report />}
+        {activeTab === "groups" && <Groups />}
 
         {/* Transaction List */}
         {activeTab === "expenses" && (

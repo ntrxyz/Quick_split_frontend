@@ -1,0 +1,55 @@
+.groups-container {
+    max-width: 100%;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .add-group-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #1a3b58;
+    border-radius: 10px;
+    align-items: center;
+    color: white;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
+  .groups-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .group-card {
+    display: block;
+    text-decoration: none;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .group-card:hover {
+    transform: scale(1.02);
+  }
+  
+  .group-card h3 {
+    margin: 0;
+    color: #007bff;
+  }
+  
+  .group-card p {
+    margin: 5px 0 0;
+    color: #555;
+  }
+  
