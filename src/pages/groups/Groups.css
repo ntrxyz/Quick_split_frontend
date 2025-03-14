@@ -1,7 +1,8 @@
 .groups-container {
-    max-width: 100%;
+    width: 100%;
     margin: auto;
     padding: 20px;
+    border-radius: 10px;
   }
   
   h2 {
@@ -47,7 +48,179 @@
     margin: 0;
     color: #007bff;
   }
-  
+  .groups-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #1a3b58;
+}
+
+.add-group-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #1a3b58;
+    border-radius: 10px;
+    color: white;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background 0.3s ease-in-out;
+}
+
+.add-group-btn:hover {
+    background-color: #0f253a;
+}
+
+.groups-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.group-card {
+    display: flex;
+    flex-direction: column;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.group-card:hover {
+    transform: scale(1.02);
+}
+
+.group-info {
+    text-decoration: none;
+}
+
+.group-info h3 {
+    margin: 0;
+    color: #007bff;
+}
+
+.group-info p {
+    margin: 5px 0 0;
+    color: #555;
+}
+
+/* Buttons inside the group card */
+.group-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.group-actions button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Edit Button */
+.edit-btn {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.edit-btn:hover {
+    background-color: #e0a800;
+}
+
+/* Delete Button */
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Edit Group Name Input */
+.edit-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.edit-group input {
+    flex-grow: 1;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.edit-group .save-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: #28a745;
+    color: white;
+}
+
+.edit-group .save-btn:hover {
+    background-color: #218838;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .groups-container {
+        padding: 15px;
+    }
+
+    .add-group-btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .group-card {
+        padding: 12px;
+    }
+
+    .group-card h3 {
+        font-size: 18px;
+    }
+
+    .group-card p {
+        font-size: 14px;
+    }
+
+    .group-actions button {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .edit-group input {
+        font-size: 12px;
+        padding: 6px;
+    }
+
+    .edit-group .save-btn {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+}
+
   .group-card p {
     margin: 5px 0 0;
     color: #555;

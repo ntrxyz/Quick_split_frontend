@@ -10,8 +10,7 @@ const Footer = () => {
       <div className="footer-container">
         {/* Left Section - Logo & About */}
         <div className="footer-left">
-          <img src={logo} className="logofooter" alt="Quick-Split Logo" />
-          <h2>Quick-Split</h2>
+          <img src={logo} className="logofooter" alt="Quick-Split Logo" /> 
           <p>Split bills effortlessly with friends & family.</p>
         </div>
 

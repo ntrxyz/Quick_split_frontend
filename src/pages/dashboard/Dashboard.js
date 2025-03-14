@@ -9,6 +9,7 @@ import Report from "../report/Report";
 import profile from "../../assets/user.png";
 import logout from "../../assets/logout.png";
 import Groups from "../groups/Groups";
+import AddUserToAGroup from "../groups/AddUserToAGroup";
 
 
 const users = ["Alice", "Bob", "Charlie", "David"]; // Sample users
@@ -103,17 +104,18 @@ const Dashboard = () => {
               Reports
             </li>
             <li
-              className={`my-2 ${activeTab === "settings" ? "active" : ""}`}
-              onClick={() => setActiveTab("reports")}
-            >
-              Settings
-            </li>
-            <li
               className={`my-2 ${activeTab === "groups" ? "active" : ""}`}
               onClick={() => setActiveTab("groups")}
             >
               Groups
             </li>
+
+            <button className={`invite-btn my-2 ${activeTab === "add user to group" ? "active" : ""}`}
+              onClick={() => setActiveTab("add user to group")}
+            >
+              Add User to a  Group
+            </button>
+           
           </ul>
         </nav>
       </aside>
@@ -123,7 +125,6 @@ const Dashboard = () => {
         <header>
           <h2>Dashboard</h2>
           <div>
-           
             <img
               src={profile}
               alt="Profile"
@@ -148,7 +149,6 @@ const Dashboard = () => {
               Add an Expense
             </button>
             <button className="settle-up mx-2">Settle Up</button>
-            <button className="invite-btn mx-2">Add User to group</button>
             <img
               src={logout}
               alt="Profile"
@@ -185,6 +185,9 @@ const Dashboard = () => {
         {activeTab === "profile" && <Profile />}
         {activeTab === "reports" && <Report />}
         {activeTab === "groups" && <Groups />}
+        {activeTab === "add user to group" && <AddUserToAGroup loggedInUser="user1" />}
+             
+
 
         {/* Transaction List */}
         {activeTab === "expenses" && (
