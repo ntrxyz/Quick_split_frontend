@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios"; // Import Axios
 import "./SignUp.css";
 
 const SignUp = () => {
@@ -9,20 +10,32 @@ const SignUp = () => {
     password: "",
   });
   const [error, setError] = useState("");
+  const navigate = useNavigate(); // Use navigate for redirection
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
+
     if (!formData.name || !formData.email || !formData.password) {
       setError("All fields are required!");
       return;
     }
-    setError("");
-    console.log("User Registered:", formData);
-    alert("Sign-up Successful!");
+
+    try {
+      const response = await axios.post("http://localhost:8080/api/auth/register", formData);
+
+      if (response.status === 201) {
+        alert("Sign-up Successful! Please log in.");
+        navigate("/login"); // Redirect to login page
+      }
+    } catch (err) {
+      setError("Signup failed. Please try again.");
+      console.error("Signup error:", err);
+    }
   };
 
   return (
@@ -30,7 +43,9 @@ const SignUp = () => {
       <div className="signup-box">
         <h2>Create an Account</h2>
         <p>Create a free account to manage expenses.</p>
+
         {error && <p className="error-message">{error}</p>}
+
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -38,6 +53,7 @@ const SignUp = () => {
             placeholder="Full Name"
             value={formData.name}
             onChange={handleChange}
+            required
           />
           <input
             type="email"
@@ -45,6 +61,7 @@ const SignUp = () => {
             placeholder="Email Address"
             value={formData.email}
             onChange={handleChange}
+            required
           />
           <input
             type="password"
@@ -52,9 +69,11 @@ const SignUp = () => {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
+            required
           />
           <button type="submit" className="signup-btn">Sign Up</button>
         </form>
+
         <p className="login-link">
           Already have an account? <Link to="/login">Log in</Link>
         </p>

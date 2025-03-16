@@ -48,6 +48,13 @@
     border-radius: 50%;
 }
 
+.logo-container h2{
+    margin-bottom: 20px;
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+}
+
 /* Sidebar Links */
 .sidebar h2 {
     margin-bottom: 20px;

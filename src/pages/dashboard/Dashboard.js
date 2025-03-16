@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import logo from "../../assets/logo.jpeg"; // App logo
 import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap for modal
@@ -15,6 +16,8 @@ import AddUserToAGroup from "../groups/AddUserToAGroup";
 const users = ["Alice", "Bob", "Charlie", "David"]; // Sample users
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("John Doe");
   const [activeTab, setActiveTab] = useState("dashboard");
   const [expense, setExpense] = useState({
     description: "",
@@ -61,6 +64,13 @@ const Dashboard = () => {
       (option) => option.value
     );
     setExpense({ ...expense, participants: selectedOptions });
+  };
+
+  const handleLogout = () => {
+    // Clear any stored authentication data (modify as needed)
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("username");
+    navigate("/"); // Redirect to login page
   };
 
   return (
@@ -140,6 +150,9 @@ const Dashboard = () => {
               }}
               onClick={() => alert("Loading Profile...")} // Replace with actual logout logic
             />
+            <span style={{ marginLeft: "10px", marginRight: "10px", fontWeight: "bold", fontSize: "16px" }}>
+                {username}
+              </span>
 
             <button
               className="add-expense mx-2"
@@ -162,7 +175,7 @@ const Dashboard = () => {
                 objectFit: "cover", // Ensures the image fits well
                 transition: "transform 0.2s ease-in-out",
               }}
-              onClick={() => alert("Logging out...")} // Replace with actual logout logic
+              onClick={handleLogout } // Replace with actual logout logic
             />
           </div>
         </header>

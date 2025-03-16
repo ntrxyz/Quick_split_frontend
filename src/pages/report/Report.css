@@ -11,8 +11,9 @@
    border-radius: 10px;
 }
 
-h2 {
+.reports-container h2 {
   font-size: 2.5rem;
+  color: #fff;
   margin-bottom: 20px;
   font-weight: 600;
 }
@@ -25,8 +26,8 @@ h2 {
   flex-wrap: wrap;
 }
 
-.card {
-  background: rgba(255, 255, 255, 0.15);
+.summary-cards .card {
+
   padding: 20px;
   border-radius: 12px;
   text-align: center;
@@ -36,6 +37,8 @@ h2 {
   min-width: 200px;
   max-width: 300px;
 }
+
+
 
 .report-details {
   display: flex;
