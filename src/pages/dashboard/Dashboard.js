@@ -13,7 +13,9 @@ import Groups from "../groups/Groups";
 import AddUserToAGroup from "../groups/AddUserToAGroup";
 
 
-const users = ["Alice", "Bob", "Charlie", "David"]; // Sample users
+
+const [userId, setUserId] = useState(localStorage.getItem("userId"));
+// Sample users
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -66,12 +68,16 @@ const Dashboard = () => {
     setExpense({ ...expense, participants: selectedOptions });
   };
 
+
   const handleLogout = () => {
-    // Clear any stored authentication data (modify as needed)
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("username");
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId"); // Clear user ID if stored
+    setUserId(null); // Reset user state
     navigate("/"); // Redirect to login page
   };
+  
+
+  
 
   return (
     <div className="dashboard-container">

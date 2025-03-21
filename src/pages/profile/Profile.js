@@ -1,129 +1,142 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaUserAlt, FaTrash, FaEdit, FaSave } from "react-icons/fa";
+import { getUserProfile, updateUserProfile, deleteUserAccount } from "../../services/userService";
+import { jwtDecode } from "jwt-decode";
 import "./Profile.css";
 
+// ✅ Function to get JWT token
+const getAuthToken = () => {
+    return localStorage.getItem("token");
+};
+
 const Profile = () => {
-  const [formData, setFormData] = useState({
-    name: "N Tri",
-    email: "ntri.knp@gmail.com",
-    phone: "None",
-    password: "********",
-    currency: "USD ($)",
-    timezone: "GMT+05:30 Chennai",
-    language: "English",
-    avatar: "",
-  });
+    const [userId, setUserId] = useState(null);
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+    });
 
-  const [editMode, setEditMode] = useState({
-    name: false,
-    email: false,
-    phone: false,
-    password: false,
-  });
+    const [editMode, setEditMode] = useState({
+        name: false,
+        email: false,
+        phone: false,
+    });
 
-  const handleEditClick = (field) => {
-    setEditMode({ ...editMode, [field]: true });
-  };
+    // ✅ Decode token and set userId (_id from MongoDB)
+    useEffect(() => {
+        const token = getAuthToken();
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                console.log("🔍 Decoded Token:", decoded); // Debugging
+    
+                // Extract `id` instead of `_id`
+                const extractedUserId = decoded.id;  // Ensure this matches backend structure
+    
+                if (!extractedUserId) {
+                    throw new Error("❌ User ID not found in decoded token.");
+                }
+    
+                setUserId(extractedUserId);
+            } catch (error) {
+                console.error("❌ Error decoding token:", error);
+            }
+        }
+    }, []);
+    
+    
+    
+  
 
-  const handleSaveClick = (field) => {
-    setEditMode({ ...editMode, [field]: false });
-  };
+    // ✅ Fetch user data when userId is available
+    useEffect(() => {
+        if (userId) {
+            setFormData({ name: "", email: "", phone: "" }); // Reset state before fetching
+            fetchUserData(userId);
+        }
+    }, [userId]);
+    
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    // ✅ Fetch user data from backend
+    const fetchUserData = async (id) => {
+        try {
+            console.log("🔎 Fetching User Data for ID:", id); // Debugging
+            const userData = await getUserProfile(id);
+            console.log("✅ Fetched User Data:", userData); // Debugging
+            setFormData(userData); // Update state with correct data
+        } catch (error) {
+            console.error("❌ Error fetching user data:", error);
+        }
+    };
+    
+    const handleEditClick = (field) => {
+        setEditMode({ ...editMode, [field]: true });
+    };
 
-  return (
-    <div className="profile-container">
-      <h2>Your Account</h2>
-      <div className="profile-box">
-        <div className="profile-left">
-          <div className="avatar-box">
-            <FaUserAlt size={100} color="#2e7d32" className="profile-icon" />
-          </div>
-          
-          <div className="input-box">
-            <label>Name:</label>
-            {editMode.name ? (
-              <input type="text" name="name" value={formData.name} onChange={handleChange} />
-            ) : (
-              <span>{formData.name}</span>
-            )}
-            <button onClick={() => (editMode.name ? handleSaveClick("name") : handleEditClick("name"))}>
-              {editMode.name ? <FaSave /> : <FaEdit />}
-            </button>
-          </div>
+    const handleSaveClick = async (field) => {
+        setEditMode({ ...editMode, [field]: false });
 
-          <div className="input-box">
-            <label>Email:</label>
-            {editMode.email ? (
-              <input type="text" name="email" value={formData.email} onChange={handleChange} />
-            ) : (
-              <span>{formData.email}</span>
-            )}
-            <button onClick={() => (editMode.email ? handleSaveClick("email") : handleEditClick("email"))}>
-              {editMode.email ? <FaSave /> : <FaEdit />}
-            </button>
-          </div>
+        try {
+            await updateUserProfile(userId, formData);
+            alert("✅ Profile updated successfully!");
+        } catch (error) {
+            console.error("❌ Error updating profile:", error);
+        }
+    };
 
-          <div className="input-box">
-            <label>Phone Number:</label>
-            {editMode.phone ? (
-              <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
-            ) : (
-              <span>{formData.phone}</span>
-            )}
-            <button onClick={() => (editMode.phone ? handleSaveClick("phone") : handleEditClick("phone"))}>
-              {editMode.phone ? <FaSave /> : <FaEdit />}
-            </button>
-          </div>
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
-          <div className="input-box">
-            <label>Password:</label>
-            {editMode.password ? (
-              <input type="password" name="password" value={formData.password} onChange={handleChange} />
-            ) : (
-              <span>{formData.password}</span>
-            )}
-            <button onClick={() => (editMode.password ? handleSaveClick("password") : handleEditClick("password"))}>
-              {editMode.password ? <FaSave /> : <FaEdit />}
-            </button>
-          </div>
+    return (
+        <div className="profile-container">
+            <h2>Your Account</h2>
+            <div className="profile-box">
+                <div className="profile-left">
+                    <div className="avatar-box">
+                        <FaUserAlt size={100} color="#2e7d32" className="profile-icon" />
+                    </div>
+
+                    <div className="input-box">
+                        <label>Name:</label>
+                        {editMode.name ? (
+                            <input type="text" name="name" value={formData.name} onChange={handleChange} />
+                        ) : (
+                            <span>{formData.name}</span>
+                        )}
+                        <button onClick={() => (editMode.name ? handleSaveClick("name") : handleEditClick("name"))}>
+                            {editMode.name ? <FaSave /> : <FaEdit />}
+                        </button>
+                    </div>
+
+                    <div className="input-box">
+                        <label>Email:</label>
+                        {editMode.email ? (
+                            <input type="text" name="email" value={formData.email} onChange={handleChange} />
+                        ) : (
+                            <span>{formData.email}</span>
+                        )}
+                        <button onClick={() => (editMode.email ? handleSaveClick("email") : handleEditClick("email"))}>
+                            {editMode.email ? <FaSave /> : <FaEdit />}
+                        </button>
+                    </div>
+
+                    <div className="input-box">
+                        <label>Phone:</label>
+                        {editMode.phone ? (
+                            <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
+                        ) : (
+                            <span>{formData.phone || "N/A"}</span>
+                        )}
+                        <button onClick={() => (editMode.phone ? handleSaveClick("phone") : handleEditClick("phone"))}>
+                            {editMode.phone ? <FaSave /> : <FaEdit />}
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div className="profile-right">
-          <div className="input-box">
-            <label>Default Currency:</label>
-            <select name="currency" value={formData.currency} onChange={handleChange}>
-              <option value="USD ($)">USD ($)</option>
-              <option value="INR (₹)">INR (₹)</option>
-            </select>
-          </div>
-
-          <div className="input-box">
-            <label>Time Zone:</label>
-            <select name="timezone" value={formData.timezone} onChange={handleChange}>
-              <option value="GMT+05:30 Chennai">GMT+05:30 Chennai</option>
-            </select>
-          </div>
-
-          <div className="input-box">
-            <label>Language:</label>
-            <select name="language" value={formData.language} onChange={handleChange}>
-              <option value="English">English</option>
-            </select>
-          </div>
-
-          <div className="button-container">
-            <button className="save-btn">Save</button>
-            <button className="delete-btn">
-              <FaTrash />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Profile;

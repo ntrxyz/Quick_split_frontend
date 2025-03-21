@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios"; // Import Axios
+import config from "../../Config"; // ✅ Import backend config
 import "./Login.css";
 
 const Login = () => {
@@ -15,27 +16,37 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/auth/login",
-        null, // ✅ Since we're using `params`, `data` must be `null`
+        `${config.backendUrl}/auth/login`,
+        null, // ✅ `data` must be `null` since we're using `params`
         {
-          params: { email, password }, // ✅ Send credentials as `params`
-          withCredentials: true, // ✅ Ensure authentication tokens are handled properly
+          params: { email, password }, // ✅ Send email & password as query params
+          withCredentials: true,
         }
       );
 
-      if (response.status === 200) {
-        const { token, userId } = response.data;
+      console.log("🔹 API Response:", response.data); // ✅ Debug API response
 
-        // Store token in localStorage
-        localStorage.setItem("token", token);
+      if (response.status === 200) {
+        const token = response.data.token;
+        const userId = response.data.userId;
+
+        if (!token || !userId) {
+          console.error("❌ Missing token or userId in response.");
+          throw new Error("Invalid API response.");
+        }
+
+        // ✅ Store token with the correct key
+        localStorage.setItem("authToken", token);
         localStorage.setItem("userId", userId);
 
-        console.log("Login successful:", response.data);
-        navigate("/dashboard"); // Redirect to dashboard after login
+        console.log("✅ Token saved:", localStorage.getItem("authToken"));
+        console.log("✅ User ID saved:", localStorage.getItem("userId"));
+
+        navigate("/dashboard"); // Redirect after login
       }
     } catch (err) {
       setError("Invalid email or password. Please try again.");
-      console.error("Login error:", err);
+      console.error("Login error:", err.response?.data || err.message);
     }
   };
 

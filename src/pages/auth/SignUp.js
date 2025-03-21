@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // Import Axios
+import axios from "axios";
+import config from "../../Config"; // ✅ Import backend config
 import "./SignUp.css";
 
 const SignUp = () => {
@@ -9,6 +10,7 @@ const SignUp = () => {
     email: "",
     password: "",
   });
+
   const [error, setError] = useState("");
   const navigate = useNavigate(); // Use navigate for redirection
 
@@ -26,15 +28,18 @@ const SignUp = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:8080/api/auth/register", formData);
+      const response = await axios.post(`${config.backendUrl}/auth/register`, formData, {
+        withCredentials: true, // ✅ Ensure cookies (if needed)
+      });
 
-      if (response.status === 201) {
-        alert("Sign-up Successful! Please log in.");
+      console.log("🔹 Signup API Response:", response.data); // ✅ Debug API response
+
+      if (response.status === 200) {
         navigate("/login"); // Redirect to login page
       }
     } catch (err) {
-      setError("Signup failed. Please try again.");
-      console.error("Signup error:", err);
+      setError(err.response?.data?.message || "Signup failed. Please try again.");
+      console.error("❌ Signup error:", err.response?.data || err.message);
     }
   };
 
