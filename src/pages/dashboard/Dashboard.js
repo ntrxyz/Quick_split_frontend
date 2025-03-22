@@ -14,12 +14,13 @@ import AddUserToAGroup from "../groups/AddUserToAGroup";
 
 
 
-const [userId, setUserId] = useState(localStorage.getItem("userId"));
+const users = ["Alice", "Bob", "Charlie", "David"];
 // Sample users
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("John Doe");
+  const [data, setData] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [expense, setExpense] = useState({
     description: "",
@@ -72,7 +73,6 @@ const Dashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId"); // Clear user ID if stored
-    setUserId(null); // Reset user state
     navigate("/"); // Redirect to login page
   };
   

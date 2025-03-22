@@ -25,51 +25,45 @@ const Profile = () => {
 
     // ✅ Decode token and set userId (_id from MongoDB)
     useEffect(() => {
-        const token = getAuthToken();
-        if (token) {
-            try {
-                const decoded = jwtDecode(token);
-                console.log("🔍 Decoded Token:", decoded); // Debugging
-    
-                // Extract `id` instead of `_id`
-                const extractedUserId = decoded.id;  // Ensure this matches backend structure
-    
-                if (!extractedUserId) {
-                    throw new Error("❌ User ID not found in decoded token.");
-                }
-    
-                setUserId(extractedUserId);
-            } catch (error) {
-                console.error("❌ Error decoding token:", error);
-            }
-        }
-    }, []);
-    
-    
-    
+      const token = getAuthToken();
+      if (token) {
+          try {
+              const decoded = jwtDecode(token);
+              console.log("🔍 Decoded Token:", decoded); // Print full token content
+  
+              // Try different possible keys (_id, id, userId, sub)
+              const extractedUserId = decoded._id ;
+  
+              if (!extractedUserId) {
+                  throw new Error("❌ User ID not found in decoded token.");
+              }
+  
+              setUserId(extractedUserId);
+          } catch (error) {
+              console.error("❌ Error decoding token:", error);
+          }
+      }
+  }, []);
   
 
     // ✅ Fetch user data when userId is available
     useEffect(() => {
         if (userId) {
-            setFormData({ name: "", email: "", phone: "" }); // Reset state before fetching
             fetchUserData(userId);
         }
     }, [userId]);
-    
 
     // ✅ Fetch user data from backend
     const fetchUserData = async (id) => {
         try {
-            console.log("🔎 Fetching User Data for ID:", id); // Debugging
             const userData = await getUserProfile(id);
-            console.log("✅ Fetched User Data:", userData); // Debugging
-            setFormData(userData); // Update state with correct data
+            console.log("✅ Fetched User Data:", userData);
+            setFormData(userData);
         } catch (error) {
             console.error("❌ Error fetching user data:", error);
         }
     };
-    
+
     const handleEditClick = (field) => {
         setEditMode({ ...editMode, [field]: true });
     };
