@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {  useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import logo from "../../assets/logo.jpeg"; // App logo
@@ -12,14 +12,12 @@ import logout from "../../assets/logout.png";
 import Groups from "../groups/Groups";
 import AddUserToAGroup from "../groups/AddUserToAGroup";
 
-
-
 const users = ["Alice", "Bob", "Charlie", "David"];
 // Sample users
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("John Doe");
+  
   const [data, setData] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [expense, setExpense] = useState({
@@ -32,6 +30,8 @@ const Dashboard = () => {
   });
 
   const [expensesList, setExpensesList] = useState([]); // Stores all expenses
+
+ 
 
   const handleAddExpense = () => {
     if (
@@ -69,15 +69,11 @@ const Dashboard = () => {
     setExpense({ ...expense, participants: selectedOptions });
   };
 
-
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userId"); // Clear user ID if stored
     navigate("/"); // Redirect to login page
   };
-  
-
-  
 
   return (
     <div className="dashboard-container">
@@ -126,12 +122,14 @@ const Dashboard = () => {
               Groups
             </li>
 
-            <button className={`invite-btn my-2 ${activeTab === "add user to group" ? "active" : ""}`}
+            <button
+              className={`invite-btn my-2 ${
+                activeTab === "add user to group" ? "active" : ""
+              }`}
               onClick={() => setActiveTab("add user to group")}
             >
-              Add User to a  Group
+              Add User to a Group
             </button>
-           
           </ul>
         </nav>
       </aside>
@@ -154,11 +152,28 @@ const Dashboard = () => {
                 objectFit: "cover", // Ensures the image fits well
                 transition: "transform 0.2s ease-in-out",
               }}
-              onClick={() => alert("Loading Profile...")} // Replace with actual logout logic
             />
-            <span style={{ marginLeft: "10px", marginRight: "10px", fontWeight: "bold", fontSize: "16px" }}>
-                {username}
-              </span>
+
+            <button
+              className="btn btn-dark dropdown-toggle mx-2"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              User
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <button className="dropdown-item"  onClick={() => setActiveTab("profile")}>
+                  Profile
+                </button>
+              </li>
+              <li>
+                <button className="dropdown-item" onClick={handleLogout}>
+                  Logout
+                </button>
+              </li>
+            </ul>
 
             <button
               className="add-expense mx-2"
@@ -181,7 +196,7 @@ const Dashboard = () => {
                 objectFit: "cover", // Ensures the image fits well
                 transition: "transform 0.2s ease-in-out",
               }}
-              onClick={handleLogout } // Replace with actual logout logic
+              onClick={handleLogout} // Replace with actual logout logic
             />
           </div>
         </header>
@@ -204,9 +219,9 @@ const Dashboard = () => {
         {activeTab === "profile" && <Profile />}
         {activeTab === "reports" && <Report />}
         {activeTab === "groups" && <Groups />}
-        {activeTab === "add user to group" && <AddUserToAGroup loggedInUser="user1" />}
-             
-
+        {activeTab === "add user to group" && (
+          <AddUserToAGroup loggedInUser="user1" />
+        )}
 
         {/* Transaction List */}
         {activeTab === "expenses" && (
