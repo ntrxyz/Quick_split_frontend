@@ -71,7 +71,7 @@ const Dashboard = () => {
 
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
     localStorage.removeItem("userId"); // Clear user ID if stored
     navigate("/"); // Redirect to login page
   };

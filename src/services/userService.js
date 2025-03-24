@@ -5,7 +5,7 @@ const API_URL = `${config.backendUrl}/users`; // Corrected API URL
 
 // ✅ Get Token from Local Storage
 const getAuthHeader = () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("authToken");
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
