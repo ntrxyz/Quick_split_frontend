@@ -1,5 +1,5 @@
 import React, {  useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import logo from "../../assets/logo.jpeg"; // App logo
 import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap for modal
@@ -19,7 +19,10 @@ const Dashboard = () => {
   const navigate = useNavigate();
   
   const [data, setData] = useState(null);
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialTab = queryParams.get("tab") || "dashboard";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [expense, setExpense] = useState({
     description: "",
     amount: "",
