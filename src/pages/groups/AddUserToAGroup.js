@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { getUserGroups, addUserToGroup } from "../../services/GroupService";
+import { getAllUsers } from "../../services/userService"; // Fetch users from a separate service
 import "./AddUserToAGroup.css";
 import img from "../../assets/adduser.png";
 
@@ -8,27 +10,25 @@ const AddUserToAGroup = ({ loggedInUser }) => {
   const [selectedGroup, setSelectedGroup] = useState("");
   const [selectedUsers, setSelectedUsers] = useState(new Set());
 
-  // Mock fetching groups and users (Replace with API calls)
+  // ✅ Fetch Groups and Users from Backend
   useEffect(() => {
-    // Mock data
-    const fetchedGroups = [
-      { id: 1, name: "Friends" },
-      { id: 2, name: "Family" },
-      { id: 3, name: "Colleagues" },
-    ];
-    const fetchedUsers = [
-      { id: "user1", name: "Alice" },
-      { id: "user2", name: "Bob" },
-      { id: "user3", name: "Charlie" },
-    ];
+    const fetchData = async () => {
+      try {
+        const fetchedGroups = await getUserGroups();
+        const fetchedUsers = await getAllUsers();
+        setGroups(fetchedGroups);
+        setUsers(fetchedUsers);
 
-    setGroups(fetchedGroups);
-    setUsers(fetchedUsers);
-
-    // Ensure the logged-in user is always included
-    setSelectedUsers(new Set([loggedInUser.id]));
+        // Ensure logged-in user is always selected
+        setSelectedUsers(new Set([loggedInUser.id]));
+      } catch (error) {
+        console.error("❌ Error fetching data:", error);
+      }
+    };
+    fetchData();
   }, [loggedInUser]);
 
+  // ✅ Handle User Selection
   const handleUserSelection = (userId) => {
     setSelectedUsers((prevSelected) => {
       const updatedSelection = new Set(prevSelected);
@@ -41,22 +41,28 @@ const AddUserToAGroup = ({ loggedInUser }) => {
     });
   };
 
-  const handleSubmit = () => {
+  // ✅ Handle Adding Users to Group
+  const handleSubmit = async () => {
     if (!selectedGroup) {
-      alert("Please select a group");
+      alert("⚠️ Please select a group");
       return;
     }
     if (selectedUsers.size === 0) {
-      alert("Please select at least one user");
+      alert("⚠️ Please select at least one user");
       return;
     }
 
-    console.log("Adding users to group:", {
-      groupId: selectedGroup,
-      users: Array.from(selectedUsers),
-    });
-
-    alert(`Users added to group successfully!`);
+    try {
+      for (const userId of selectedUsers) {
+        await addUserToGroup(selectedGroup, userId); // API Call
+      }
+      alert("✅ Users added successfully!");
+      setSelectedUsers(new Set([loggedInUser.id])); // Reset selection
+      setSelectedGroup("");
+    } catch (error) {
+      console.error("❌ Error adding users:", error);
+      alert("Failed to add users. Please try again.");
+    }
   };
 
   return (
@@ -64,7 +70,7 @@ const AddUserToAGroup = ({ loggedInUser }) => {
       <div className="add-user-container">
         <h2>Add Users</h2>
 
-        {/* Group Selection */}
+        {/* ✅ Group Selection */}
         <label>Select Group:</label>
         <select
           value={selectedGroup}
@@ -78,7 +84,7 @@ const AddUserToAGroup = ({ loggedInUser }) => {
           ))}
         </select>
 
-        {/* User Selection */}
+        {/* ✅ User Selection */}
         <div className="user-selection">
           <h3>Select Users:</h3>
           {users.map((user) => (
@@ -88,18 +94,20 @@ const AddUserToAGroup = ({ loggedInUser }) => {
                 value={user.id}
                 checked={selectedUsers.has(user.id)}
                 onChange={() => handleUserSelection(user.id)}
-                disabled={user.id === loggedInUser.id} // Logged-in user is always selected
+                disabled={user.id === loggedInUser.id} // ✅ Ensure logged-in user is always included
               />
               {user.name} {user.id === loggedInUser.id && "(You)"}
             </label>
           ))}
         </div>
 
-        {/* Submit Button */}
+        {/* ✅ Submit Button */}
         <button onClick={handleSubmit} className="submit-btn">
           Add to Group
         </button>
       </div>
+
+      {/* ✅ Right-Side Image */}
       <div
         style={{
           padding: "15px",
@@ -112,7 +120,7 @@ const AddUserToAGroup = ({ loggedInUser }) => {
           top: "120px",
         }}
       >
-        <img src={img} style={{ width: "100%", borderRadius: "5px" }} />
+        <img src={img} style={{ width: "100%", borderRadius: "5px" }} alt="Add User" />
       </div>
     </div>
   );

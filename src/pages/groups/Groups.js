@@ -1,88 +1,75 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaEdit, FaTrash } from "react-icons/fa"; // Import icons
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { getUserGroups, deleteGroup } from "../../services/GroupService"; // Import API functions
 import "./Groups.css";
-
-const initialGroupsData = [
-  { id: 1, name: "Weekend Trip", recentExpense: "Dinner - ₹1200" },
-  { id: 2, name: "Office Lunch", recentExpense: "Pizza Party - ₹800" },
-  { id: 3, name: "Flatmates", recentExpense: "Electricity Bill - ₹2500" },
-];
 
 const Groups = () => {
   const navigate = useNavigate();
-  const [groups, setGroups] = useState(initialGroupsData);
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [editingGroupId, setEditingGroupId] = useState(null);
   const [newGroupName, setNewGroupName] = useState("");
 
-  // Function to navigate to the create group page
-  const handleCreateGroup = () => {
-    navigate("/groups/new");
-  };
+  // Fetch user groups on component mount
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const data = await getUserGroups();
+        setGroups(data || []); // Ensure an empty array if no data
+      } catch (error) {
+        console.error("Error fetching groups:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGroups();
+  }, []);
 
-  // Function to delete a group
-  const handleDeleteGroup = (id) => {
-    setGroups(groups.filter((group) => group.id !== id));
-  };
-
-  // Function to start editing a group name
-  const handleEditGroup = (id, currentName) => {
-    setEditingGroupId(id);
-    setNewGroupName(currentName);
-  };
-
-  // Function to save the edited group name
-  const handleSaveGroupName = (id) => {
-    setGroups(
-      groups.map((group) =>
-        group.id === id ? { ...group, name: newGroupName } : group
-      )
-    );
-    setEditingGroupId(null);
+  // Handle group deletion
+  const handleDeleteGroup = async (id) => {
+    try {
+      await deleteGroup(id);
+      setGroups(groups.filter((group) => group.id !== id));
+    } catch (error) {
+      console.error("Failed to delete group:", error);
+    }
   };
 
   return (
     <div className="groups-container my-2">
       <h2>Groups</h2>
-
-      {/* Button to Open the Create Group Page */}
-      <button className="add-group-btn my-4" onClick={handleCreateGroup}>
+      
+      {/* Create Group Button */}
+      <button className="add-group-btn my-4" onClick={() => navigate("/groups/new")}>
         + Create Group
       </button>
 
-      <div className="groups-list">
-        {groups.map((group) => (
-          <div key={group.id} className="group-card">
-            {editingGroupId === group.id ? (
-              <div className="edit-group">
-                <input
-                  type="text"
-                  value={newGroupName}
-                  onChange={(e) => setNewGroupName(e.target.value)}
-                />
-                <button className="save-btn" onClick={() => handleSaveGroupName(group.id)}>
-                  Save
+      {/* Display groups or "No groups" message */}
+      {loading ? (
+        <p>Loading groups...</p>
+      ) : groups.length === 0 ? (
+        <p>No groups yet. <Link to="/groups/new">Create one!</Link></p>
+      ) : (
+        <div className="groups-list">
+          {groups.map((group) => (
+            <div key={group.id} className="group-card">
+              <Link to={`/groups/${group.id}`} className="group-info">
+                <h3>{group.name}</h3>
+                <p>Recent: {group.recentExpense || "No expenses yet"}</p>
+              </Link>
+              <div className="group-actions">
+                <button className="edit-btn">
+                  <FaEdit /> Edit
+                </button>
+                <button className="delete-btn" onClick={() => handleDeleteGroup(group.id)}>
+                  <FaTrash /> Delete
                 </button>
               </div>
-            ) : (
-              <>
-                <Link to={`/groups/${group.id}`} className="group-info">
-                  <h3>{group.name}</h3>
-                  <p>Recent: {group.recentExpense}</p>
-                </Link>
-                <div className="group-actions">
-                  <button className="edit-btn" onClick={() => handleEditGroup(group.id, group.name)}>
-                    <FaEdit /> Edit
-                  </button>
-                  <button className="delete-btn" onClick={() => handleDeleteGroup(group.id)}>
-                    <FaTrash /> Delete
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
