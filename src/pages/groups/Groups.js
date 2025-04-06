@@ -16,6 +16,7 @@ const Groups = () => {
     const fetchGroups = async () => {
       try {
         const data = await getUserGroups();
+        console.log("Fetched groups:", data); // 👀 Debug
         setGroups(data || []); // Ensure an empty array if no data
       } catch (error) {
         console.error("Error fetching groups:", error);

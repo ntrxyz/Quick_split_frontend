@@ -45,8 +45,14 @@ export const getGroupById = async (groupId) => {
 
 // ✅ Get Logged-in User's Groups
 export const getUserGroups = async () => {
-    return apiRequest("get", `/user`);
+    const userId = localStorage.getItem("userId"); // 👈 Get userId from localStorage
+    if (!userId) {
+        console.error("❌ No userId found in localStorage!");
+        return [];
+    }
+    return apiRequest("get", `/user/${userId}`); // 👈 Pass userId in the URL
 };
+
 
 // ✅ Add User to Group
 export const addUserToGroup = async (groupId, userId) => {
