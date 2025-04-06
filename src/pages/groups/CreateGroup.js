@@ -23,26 +23,35 @@ const CreateGroup = () => {
       setMessage("❌ Group name is required!");
       return;
     }
-
+  
     setLoading(true);
     setMessage("");
-
+  
     try {
+      // Step 1: Create the group
       const group = await createGroup(groupName);
       setGroupId(group.id);
       setMessage(`✅ Group "${group.name}" created successfully!`);
-
-      // ✅ Redirect to Dashboard after a short delay
+  
+      // Step 2: Add the logged-in user to the group
+      if (loggedInUserId && group.id) {
+        await addUserToGroup(group.id, loggedInUserId);
+        console.log("✅ Logged-in user added to group successfully");
+      } else {
+        console.warn("⚠️ Missing userId or groupId for adding user to group.");
+      }
+  
+      // Step 3: Redirect to dashboard
       setTimeout(() => {
         navigate("/dashboard?tab=groups");
       }, 1500);
-      
     } catch (error) {
-      setMessage("❌ Failed to create group. Please try again.");
+      setMessage("❌ Failed to create group or add user. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="create-group-page">
