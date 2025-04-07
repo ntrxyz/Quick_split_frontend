@@ -1,0 +1,108 @@
+.group-details-bg {
+    background: url("../../assets/groupbg.png") no-repeat center center fixed;
+    background-size: cover;
+    padding: 40px;
+    min-height: 100vh;
+  }
+  
+  .group-details-card {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    max-width: 800px;
+    margin: auto;
+  }
+  
+  .group-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2d3436;
+    text-align: center;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px #dfe6e9;
+  }
+  
+  .group-section {
+    margin-bottom: 30px;
+  }
+  
+  .member-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .member-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ecf0f1;
+    padding: 10px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+
+  .member-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+  }
+  
+  .member-username {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+  }
+  
+  .member-email {
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: #636e72;
+    display: flex;
+    align-items: center;
+  }
+  
+  .icon {
+    margin-right: 8px;
+    font-size: 1.1rem;
+  }
+  
+  
+  
+  .remove-btn {
+    background-color: #d63031;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .remove-btn:hover {
+    background-color: #c0392b;
+  }
+  
+  .add-user-item {
+    text-align: center;
+    margin-top: 10px;
+  }
+  
+  .add-user-btn {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+  
+  .add-user-btn:hover {
+    background-color: #219653;
+  }
+  

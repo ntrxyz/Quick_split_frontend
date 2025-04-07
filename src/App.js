@@ -7,6 +7,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import Groups from "./pages/groups/Groups";
 import CreateGroup from "./pages/groups/CreateGroup";
 import { GroupsProvider } from "./context/GroupsContext";
+import GroupDetails from "./pages/groups/GroupDetails";
 
 
 const App = () => {
@@ -20,6 +21,7 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard/>} />
         <Route path="/groups" element={<Groups />} />
         <Route path="/groups/new" element={<CreateGroup />} />
+        <Route path="/groups/:id" element={<GroupDetails />} />
       </Routes>
     </Router>
     </GroupsProvider>
