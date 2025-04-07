@@ -1,82 +1,66 @@
-import React, { useState, useEffect } from "react";
-import { getUserGroups, addUserToGroup } from "../../services/GroupService";
-import { getAllUsers } from "../../services/userService"; // Fetch users from a separate service
+import React, { useState, useContext } from "react";
+import { Check } from "lucide-react";
+import { addUserToGroup } from "../../services/GroupService";
+import { getUserByEmail } from "../../services/userService";
+import { GroupsContext } from "../../context/GroupsContext";
+import img from "../../assets/adduser.jpg";
 import "./AddUserToAGroup.css";
-import img from "../../assets/adduser.png";
 
-const AddUserToAGroup = ({ loggedInUser }) => {
-  const [groups, setGroups] = useState([]);
-  const [users, setUsers] = useState([]);
+const AddUserToAGroup = () => {
+  const { groups } = useContext(GroupsContext);
   const [selectedGroup, setSelectedGroup] = useState("");
-  const [selectedUsers, setSelectedUsers] = useState(new Set());
+  const [email, setEmail] = useState("");
+  const [addedEmails, setAddedEmails] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch Groups and Users from Backend
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const fetchedGroups = await getUserGroups();
-        const fetchedUsers = await getAllUsers();
-        setGroups(fetchedGroups);
-        setUsers(fetchedUsers);
+  const handleAddSingleEmail = async () => {
+    if (!selectedGroup || !email.trim()) {
+      alert("⚠️ Please select a group and enter an email.");
+      return;
+    }
 
-        // Ensure logged-in user is always selected
-        setSelectedUsers(new Set([loggedInUser.id]));
-      } catch (error) {
-        console.error("❌ Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, [loggedInUser]);
-
-  // ✅ Handle User Selection
-  const handleUserSelection = (userId) => {
-    setSelectedUsers((prevSelected) => {
-      const updatedSelection = new Set(prevSelected);
-      if (updatedSelection.has(userId)) {
-        updatedSelection.delete(userId);
+    setLoading(true);
+    try {
+      const user = await getUserByEmail(email.trim());
+      if (user?.id) {
+        await addUserToGroup(selectedGroup, user.id);
+        setAddedEmails((prev) => [...prev, email.trim()]);
+        setEmail("");
       } else {
-        updatedSelection.add(userId);
+        alert(`❌ No user found with email: ${email}`);
       }
-      return updatedSelection;
-    });
+    } catch (err) {
+      console.error("Error adding user:", err);
+      alert("❌ Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ✅ Handle Adding Users to Group
-  const handleSubmit = async () => {
-    if (!selectedGroup) {
-      alert("⚠️ Please select a group");
-      return;
-    }
-    if (selectedUsers.size === 0) {
-      alert("⚠️ Please select at least one user");
-      return;
+  const handleSave = () => {
+    if (addedEmails.length === 0) {
+      alert("⚠️ No users were added.");
+    } else {
+      alert("✅ All users added to the group!");
     }
 
-    try {
-      for (const userId of selectedUsers) {
-        await addUserToGroup(selectedGroup, userId); // API Call
-      }
-      alert("✅ Users added successfully!");
-      setSelectedUsers(new Set([loggedInUser.id])); // Reset selection
-      setSelectedGroup("");
-    } catch (error) {
-      console.error("❌ Error adding users:", error);
-      alert("Failed to add users. Please try again.");
-    }
+    setSelectedGroup("");
+    setEmail("");
+    setAddedEmails([]);
   };
 
   return (
-    <div className="add-user">
-      <div className="add-user-container">
-        <h2>Add Users</h2>
+    <div className="add-user-container-wrapper">
+      <div className="add-user-left">
+        <h2 className="section-title">➕ Add Users to Group</h2>
 
-        {/* ✅ Group Selection */}
-        <label>Select Group:</label>
+        <label className="input-label">Select Group:</label>
         <select
+          className="styled-select"
           value={selectedGroup}
           onChange={(e) => setSelectedGroup(e.target.value)}
         >
-          <option value="">-- Select a group --</option>
+          <option value="">Choose a group</option>
           {groups.map((group) => (
             <option key={group.id} value={group.id}>
               {group.name}
@@ -84,43 +68,31 @@ const AddUserToAGroup = ({ loggedInUser }) => {
           ))}
         </select>
 
-        {/* ✅ User Selection */}
-        <div className="user-selection">
-          <h3>Select Users:</h3>
-          {users.map((user) => (
-            <label key={user.id} className="user-checkbox">
-              <input
-                type="checkbox"
-                value={user.id}
-                checked={selectedUsers.has(user.id)}
-                onChange={() => handleUserSelection(user.id)}
-                disabled={user.id === loggedInUser.id} // ✅ Ensure logged-in user is always included
-              />
-              {user.name} {user.id === loggedInUser.id && "(You)"}
-            </label>
-          ))}
+        <label className="input-label">Enter User Email:</label>
+        <div className="email-input-row">
+          <input
+            type="email"
+            className="email-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="e.g. someone@example.com"
+          />
+          <Check className="tick-icon" onClick={handleAddSingleEmail} />
         </div>
 
-        {/* ✅ Submit Button */}
-        <button onClick={handleSubmit} className="submit-btn">
+        <ul className="email-list">
+          {addedEmails.map((email, idx) => (
+            <li key={idx}>{email}</li>
+          ))}
+        </ul>
+
+        <button onClick={handleSave} className="submit-btn">
           Add to Group
         </button>
       </div>
 
-      {/* ✅ Right-Side Image */}
-      <div
-        style={{
-          padding: "15px",
-          width: "690px",
-          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-          borderRadius: "10px",
-          backgroundColor: "#fff",
-          position: "absolute",
-          right: "20px",
-          top: "120px",
-        }}
-      >
-        <img src={img} style={{ width: "100%", borderRadius: "5px" }} alt="Add User" />
+      <div className="add-user-right">
+        <img src={img} alt="Add User" className="side-image" />
       </div>
     </div>
   );

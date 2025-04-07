@@ -66,7 +66,7 @@ export const deleteUserAccount = async (userId) => {
     }
 };
 
-// ✅ Get All Users (If needed)
+// ✅ Get All Users
 export const getAllUsers = async () => {
     try {
         const response = await axios.get(`${API_URL}`, {
@@ -80,3 +80,21 @@ export const getAllUsers = async () => {
         throw error;
     }
 };
+
+// ✅ Get User by Email
+export const getUserByEmail = async (email) => {
+    try {
+        if (!email) throw new Error("Email is required to fetch user!");
+
+        const response = await axios.get(`${API_URL}/email/${email}`, {
+            headers: getAuthHeader(),
+        });
+
+        console.log("📧 User Fetched by Email:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error fetching user by email:", error.response?.data || error.message);
+        throw error;
+    }
+};
+

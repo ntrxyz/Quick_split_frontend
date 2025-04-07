@@ -1,60 +1,109 @@
-.add-user-container {
-    width: 400px;
-    margin-top: 30px;
-    
-    padding: 20px;
-    background: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  h2 {
-    color: #333;
-  }
-  
-  label {
-    display: block;
-    font-weight: bold;
-    margin-top: 10px;
-  }
-  
-  select {
-    width: 100%;
-    padding: 8px;
-    margin: 10px 0;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-  
-  .user-selection {
-    text-align: left;
-    margin-top: 10px;
-  }
+.add-user-container-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin: 30px;
+  padding: 20px;
+  background: #fefefe;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
 
-  
-  
-  .user-checkbox {
-    display: block;
-    margin: 5px 0;
-  }
-  
-  input[type="checkbox"] {
-    margin-right: 5px;
-  }
-  
-  .submit-btn {
-    margin-top: 15px;
-    padding: 10px;
-    width: 100%;
-    background-color: #1a3b58;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .submit-btn:hover {
-    background-color:#0f2a41;
-  }
-  
+.add-user-left {
+  flex: 1;
+  padding: 20px;
+  min-width: 300px;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.input-label {
+  font-weight: 600;
+  margin-top: 20px;
+  display: block;
+  color: #444;
+}
+
+.styled-select,
+.email-input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  font-size: 1rem;
+}
+
+.email-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.tick-icon {
+  cursor: pointer;
+  color: #4caf50;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.tick-icon:hover {
+  transform: scale(1.2);
+  color: #2e7d32;
+}
+
+
+.email-input {
+  flex: 1;
+}
+
+
+.email-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.email-list li {
+  padding: 6px 10px;
+  background-color: #e8f0fe;
+  color: #333;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.submit-btn {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 10px;
+}
+
+.submit-btn:hover {
+  background-color: #45a049;
+}
+
+.add-user-right {
+  width: 45%;
+  padding: 15px;
+  min-width: 280px;
+}
+
+.side-image {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+}
