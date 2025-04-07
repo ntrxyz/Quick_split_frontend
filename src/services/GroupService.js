@@ -59,6 +59,11 @@ export const addUserToGroup = async (groupId, userId) => {
     return apiRequest("post", `/${groupId}/add-user/${userId}`);
 };
 
+export const updateGroupName = async (groupId, newName) => {
+    return apiRequest("put", `/${groupId}?newName=${encodeURIComponent(newName)}`);
+  };
+  
+
 // ✅ Remove User from Group
 export const removeUserFromGroup = async (groupId, userId) => {
     return apiRequest("delete", `/${groupId}/remove-user/${userId}`);
