@@ -1,0 +1,132 @@
+/* Container Styling */
+.add-expense-page {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #f9f9f9;
+    border-radius: 16px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  /* Header */
+  .add-expense-page h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+  }
+  
+  /* Form Group */
+  .form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Labels */
+  .form-group label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+  }
+  
+  /* Inputs & Selects */
+  input[type="text"],
+  input[type="number"],
+  select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  select:focus {
+    border-color: #3498db;
+  }
+  
+  /* Participants List Styling */
+  .participants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  /* Checkbox Item */
+  .participant-item {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Custom Checkbox Styling */
+  .participant-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 2px solid #ff7043;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    margin-right: 10px;
+  }
+  
+  .participant-item input[type="checkbox"]:checked {
+    background-color: #ff7043;
+    border-color: #ff7043;
+  }
+  
+  .participant-item input[type="checkbox"]::before {
+    content: "✔";
+    color: white;
+    font-size: 14px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.2s ease;
+  }
+  
+  .participant-item input[type="checkbox"]:checked::before {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  
+  /* Checkbox Labels */
+  .participant-label {
+    font-size: 16px;
+    color: #2c3e50;
+  }
+  
+  .participant-name {
+    font-weight: 500;
+  }
+  
+  .participant-email {
+    font-style: italic;
+    color: #7f8c8d;
+  }
+  
+  /* Submit Button */
+  .submit-btn {
+    background-color:#ff7043;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  .submit-btn:hover {
+    background-color:#e65c33;
+  }
+  
