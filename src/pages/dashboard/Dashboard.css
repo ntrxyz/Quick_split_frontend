@@ -7,8 +7,8 @@
 .dashboard {
     flex: 1;
     padding: 20px;
-    backdrop-filter: blur(10px);
-    background: url('../../assets/dashboardbg.png') no-repeat center center/cover;
+   
+    background: url("../../assets/dashboardbg.png ")no-repeat center center/cover;
 }
 
 .dashboard::before {
@@ -26,7 +26,7 @@
     position: sticky;
     top: 0;
     z-index: 999;
-    
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(10px); /* frosted glass effect */
     display: flex;
     justify-content: space-between;

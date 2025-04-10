@@ -9,6 +9,7 @@ import Groups from "../groups/Groups";
 import AddUserToAGroup from "../groups/AddUserToAGroup";
 import Sidebar from "../../components/sidebar/Sidebar";
 import AddExpense from "../expenses/addexpense/AddExpense";
+import AllExpenses from "../expenses/allexpenses/AllExpenses";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -111,7 +112,7 @@ const Dashboard = () => {
         {activeTab === "profile" && <Profile />}
         {activeTab === "reports" && <Report />}
         {activeTab === "groups" && <Groups />}
-        {activeTab === "expenses" && <Groups />}
+        {activeTab === "expenses" && <AllExpenses />}
         {activeTab === "add user to group" && <AddUserToAGroup />}
         {activeTab === "add-expense" && <AddExpense />}
       </main>

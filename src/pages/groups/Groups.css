@@ -4,7 +4,7 @@
     max-width: 600px;
     margin: auto;
     padding: 20px;
-    background-color: #ffffff;
+    background: rgba(255, 255, 255, 0.85);
     border-radius: 10px;
   }
   
@@ -46,7 +46,7 @@
   .group-card {
     display: flex;
     flex-direction: column;
-    background: #f8f9fa;
+    background: rgba(255, 255, 255, 0.85);
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

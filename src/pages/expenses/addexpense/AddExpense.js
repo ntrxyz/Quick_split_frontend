@@ -2,36 +2,57 @@ import React, { useContext, useEffect, useState } from "react";
 import { GroupsContext } from "../../../context/GroupsContext";
 import { getUserProfile } from "../../../services/userService";
 import { addExpense } from "../../../services/ExpenseService";
-import { getGroupById } from "../../../services/GroupService"; // ✅ Use service instead of raw axios
+import { getGroupById } from "../../../services/GroupService";
 import "./AddExpense.css";
 
 const AddExpense = () => {
   const { groups } = useContext(GroupsContext);
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [groupUsers, setGroupUsers] = useState([]);
-  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
-  const [paidBy, setPaidBy] = useState("");
+  const [paidBy, setPaidBy] = useState(""); // holds user _id
   const [participants, setParticipants] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // ✅ Fetch group details when selected group changes
   useEffect(() => {
     const fetchGroupDetails = async () => {
-      if (!selectedGroupId) return;
+      if (!selectedGroupId) {
+        setGroupUsers([]);
+        return;
+      }
 
       try {
-        // Fetch group data
+        setLoading(true);
+        setError("");
+
         const groupData = await getGroupById(selectedGroupId);
-        // Get the user profiles for all group members
+        if (!groupData || !Array.isArray(groupData.members)) {
+          throw new Error("Invalid group data structure");
+        }
+
         const userProfiles = await Promise.all(
-          groupData.members.map((userId) => getUserProfile(userId))
+          groupData.members.map(async (memberId) => {
+            try {
+              const userData = await getUserProfile(memberId);
+              return userData;
+            } catch (err) {
+              console.error(`Error fetching profile for member ${memberId}:`, err);
+              return null;
+            }
+          })
         );
 
-        setGroupUsers(userProfiles);
-        setPaidBy(""); // Clear "Paid By" field when group changes
-        setParticipants([]); // Clear previous participants
+        const validUsers = userProfiles.filter((user) => user !== null);
+        setGroupUsers(validUsers);
+        setPaidBy("");
+        setParticipants([]);
       } catch (err) {
-        console.error("Error fetching group users:", err);
+        console.error("Error fetching group data:", err);
+        setError("Failed to load group members. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -40,81 +61,90 @@ const AddExpense = () => {
 
   const handleParticipantChange = (userId) => {
     setParticipants((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
     );
   };
-  
-  
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !selectedGroupId ||
-      !title ||
-      !amount ||
-      !paidBy ||
-      participants.length === 0
-    ) {
-      alert("Please fill in all fields and select at least one participant.");
+    if (!selectedGroupId || !description || !amount || !paidBy || participants.length === 0) {
+      setError("Please fill in all fields and select at least one participant.");
       return;
     }
 
-    const payload = {
-      groupId: selectedGroupId,
-      title,
-      amount,
-      paidBy,
-      participants,
-    };
-
     try {
-      await addExpense(payload);
+      setLoading(true);
+      setError("");
 
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        setError("You are not logged in. Please log in and try again.");
+        return;
+      }
+
+      const payload = {
+        userId,
+        groupId: selectedGroupId,
+        description,
+        amount: parseFloat(amount),
+        paidBy, // user ID
+        sharedWith: participants, // array of user IDs
+      };
+
+      console.log("✅ Expense Payload:", payload);
+      const result = await addExpense(payload);
+      console.log("✅ Expense added:", result);
       alert("Expense added successfully!");
-      setTitle("");
+
+      // Reset form
+      setDescription("");
       setAmount("");
       setPaidBy("");
       setParticipants([]);
       setSelectedGroupId("");
-      setGroupUsers([]);
     } catch (err) {
-      console.error("Error adding expense", err);
-      alert("Failed to add expense");
+      console.error("❌ Error adding expense:", err);
+      setError(`Failed to add expense: ${err.message || "Unknown error"}`);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="add-expense-page">
       <h2>Add New Expense</h2>
+
+      {error && <div className="error-message">{error}</div>}
+
       <form onSubmit={handleSubmit} className="expense-form">
         <div className="form-group">
           <label>Select Group:</label>
           <select
             value={selectedGroupId}
             onChange={(e) => setSelectedGroupId(e.target.value)}
+            disabled={loading}
           >
             <option value="">Select Group</option>
             {groups.map((group) => (
-              <option key={group.id} value={group.id}>
+              <option key={group._id || group.id} value={group._id || group.id}>
                 {group.name}
               </option>
             ))}
           </select>
         </div>
 
-        {selectedGroupId && (
+        {loading && <div className="loading-indicator">Loading group data...</div>}
+
+        {selectedGroupId && !loading && groupUsers.length > 0 && (
           <>
             <div className="form-group">
-              <label>Title:</label>
+              <label>Description:</label>
               <input
                 type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter expense title"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Enter expense description"
               />
             </div>
 
@@ -125,6 +155,8 @@ const AddExpense = () => {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter amount"
+                step="0.01"
+                min="0.01"
               />
             </div>
 
@@ -137,38 +169,41 @@ const AddExpense = () => {
                 <option value="">Select User</option>
                 {groupUsers.map((user) => (
                   <option key={user._id} value={user._id}>
-                    {user.username} ({user.email})
+                    {user.email}
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="form-group">
-  <label>Select Participants:</label>
-  <div className="participants-list">
-    {groupUsers.map((user) => (
- <div key={user._id} className="participant-item">
- <input
-   type="checkbox"
-   id={`participant-${user._id}`}
-   checked={participants.includes(user._id)}
-   onChange={() => handleParticipantChange(user._id)}
- />
- <label htmlFor={`participant-${user._id}`} className="participant-label">
-   <span className="participant-name mx-2">{user.name}:</span>
-   <span className="participant-email">({user.email})</span>
- </label>
-</div>
+              <label>Select Participants:</label>
+              <div className="participants-list">
+                {groupUsers.map((user) => (
+                  <div key={user._id} className="participant-item">
+                    <input
+                      type="checkbox"
+                      id={`participant-${user._id}`}
+                      checked={participants.includes(user._id)}
+                      onChange={() => handleParticipantChange(user._id)}
+                    />
+                    <label htmlFor={`participant-${user._id}`}>
+                      {user.email}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-    ))}
-  </div>
-</div>
-
-
-            <button type="submit" className="submit-btn">
-              Add Expense
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? "Adding..." : "Add Expense"}
             </button>
           </>
+        )}
+
+        {selectedGroupId && !loading && groupUsers.length === 0 && (
+          <div className="no-users-message">
+            No members found in this group. Please add members to the group first.
+          </div>
         )}
       </form>
     </div>
