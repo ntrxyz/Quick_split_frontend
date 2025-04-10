@@ -1,0 +1,78 @@
+/* Sidebar */
+.sidebar {
+    width: 270px;
+    background: #1a3b58;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* full height of the viewport */
+    overflow-y: auto; /* allows scrolling if content overflows */
+    position: sticky; /* stays in place while scrolling */
+    top: 0;
+    box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+/* Logo & Title */
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.app-logo {
+    height: 45px;
+    width: 45px;
+    border-radius: 50%;
+}
+
+.logo-container h2 {
+    margin-bottom: 20px;
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+/* Sidebar Links */
+.sidebar h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.sidebar nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar nav ul li {
+    padding: 12px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+    border-radius: 5px;
+}
+
+.sidebar nav ul li:hover,
+.sidebar nav ul .active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Groups & Friends Section */
+.groups, .friends {
+    margin-top: 20px;
+    margin-bottom: 0;
+}
+
+.invite-btn {
+    margin-top: 15px;
+    padding: 10px;
+    border: none;
+    background: #f4f7f9;
+    color: black;
+    cursor: pointer;
+    width: 100%;
+    height: 80px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease-in-out;
+}
