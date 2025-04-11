@@ -105,10 +105,10 @@ const Groups = () => {
                   </Link>
                 )}
                 <p>
-                  Recent:{" "}
+                  
                   {group.recentExpense
                     ? group.recentExpense
-                    : "No expenses yet"}
+                    : ""}
                 </p>
               </div>
 

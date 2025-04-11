@@ -4,6 +4,8 @@ import { getUserProfile } from "../../../services/userService";
 import { addExpense } from "../../../services/ExpenseService";
 import { getGroupById } from "../../../services/GroupService";
 import "./AddExpense.css";
+import { useExpenseContext } from "../../../context/ExpenseContext";
+
 
 const AddExpense = () => {
   const { groups } = useContext(GroupsContext);
@@ -15,6 +17,7 @@ const AddExpense = () => {
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { fetchExpenses } = useExpenseContext(); 
 
   useEffect(() => {
     const fetchGroupDetails = async () => {
@@ -99,6 +102,8 @@ const AddExpense = () => {
       const result = await addExpense(payload);
       console.log("✅ Expense added:", result);
       alert("Expense added successfully!");
+
+      await fetchExpenses();
 
       // Reset form
       setDescription("");

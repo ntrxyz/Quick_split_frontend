@@ -9,6 +9,7 @@ import CreateGroup from "./pages/groups/CreateGroup";
 import { GroupsProvider } from "./context/GroupsContext";
 import GroupDetails from "./pages/groups/GroupDetails";
 import { ExpenseProvider } from "./context/ExpenseContext";
+import ExpenseDetails from "./pages/expenses/expensedetails/ExpenseDetails"
 
 
 const App = () => {
@@ -24,6 +25,8 @@ const App = () => {
         <Route path="/groups" element={<Groups />} />
         <Route path="/groups/new" element={<CreateGroup />} />
         <Route path="/groups/:id" element={<GroupDetails />} />
+        <Route path="/expenses/:expenseId" element={<ExpenseDetails />} />
+
       </Routes>
     </Router>
     </GroupsProvider>

@@ -43,4 +43,10 @@
     color: #555;
 }
 
+.expense-link {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+
 
