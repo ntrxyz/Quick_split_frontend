@@ -11,7 +11,7 @@ const AddExpense = () => {
   const [groupUsers, setGroupUsers] = useState([]);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
-  const [paidBy, setPaidBy] = useState(""); // holds user _id
+  const [paidBy, setPaidBy] = useState(""); // Will store user ID
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -83,13 +83,16 @@ const AddExpense = () => {
         return;
       }
 
+      // Convert all participant IDs to strings if they aren't already
+      const formattedParticipants = participants.map(id => String(id));
+      
       const payload = {
         userId,
         groupId: selectedGroupId,
         description,
         amount: parseFloat(amount),
-        paidBy, // user ID
-        sharedWith: participants, // array of user IDs
+        paidBy: String(paidBy), // Ensure paidBy is a string
+        sharedWith: formattedParticipants, // Array of user ID strings
       };
 
       console.log("✅ Expense Payload:", payload);
@@ -141,7 +144,7 @@ const AddExpense = () => {
             <div className="form-group">
               <label>Description:</label>
               <input
-                type="text"
+                type="text" 
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Enter expense description"
