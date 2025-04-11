@@ -8,10 +8,12 @@ import Groups from "./pages/groups/Groups";
 import CreateGroup from "./pages/groups/CreateGroup";
 import { GroupsProvider } from "./context/GroupsContext";
 import GroupDetails from "./pages/groups/GroupDetails";
+import { ExpenseProvider } from "./context/ExpenseContext";
 
 
 const App = () => {
   return (
+    <ExpenseProvider>
     <GroupsProvider>
     <Router>
       <Routes>
@@ -25,6 +27,7 @@ const App = () => {
       </Routes>
     </Router>
     </GroupsProvider>
+    </ExpenseProvider>
   );
 };
 

@@ -1,23 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { getExpensesByUser } from "../../../services/ExpenseService";
 import { getGroupById } from "../../../services/GroupService";
 import "./AllExpenses.css";
+import { useExpenseContext } from "../../../context/ExpenseContext";
 
 const AllExpenses = () => {
-  const [expenses, setExpenses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { expenses, loading } = useExpenseContext();
   const [groupMap, setGroupMap] = useState({});
 
   useEffect(() => {
-    const fetchExpenses = async () => {
+    const fetchGroups = async () => {
       try {
-        const data = await getExpensesByUser();
-        setExpenses(data);
-
-        // Extract unique group IDs
-        const groupIds = [...new Set(data.map((exp) => exp.groupId))];
-
-        // Fetch group names for each groupId
+        const groupIds = [...new Set(expenses.map((exp) => exp.groupId))];
         const groupResponses = await Promise.all(
           groupIds.map((id) => getGroupById(id))
         );
@@ -27,14 +20,12 @@ const AllExpenses = () => {
         });
         setGroupMap(map);
       } catch (error) {
-        console.error("Error fetching expenses or groups:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching group names:", error);
       }
     };
 
-    fetchExpenses();
-  }, []);
+    if (expenses.length > 0) fetchGroups();
+  }, [expenses]);
 
   return (
     <div className="expenses-container">
@@ -46,19 +37,13 @@ const AllExpenses = () => {
       ) : (
         <div className="expenses-grid">
           {expenses.map((expense, index) => {
-            const colorClass = `colorful-border-${index % 5}`; // Rotate through 5 color styles
+            const colorClass = `colorful-border-${index % 5}`;
             return (
               <div key={expense._id} className={`expense-card ${colorClass}`}>
                 <h3>{expense.description}</h3>
-                <p>
-                  <strong>Amount:</strong> ₹{expense.amount}
-                </p>
-                <p>
-                  <strong>Paid By:</strong> {expense.paidBy || "N/A"}
-                </p>
-                <p>
-                  <strong>Group:</strong> {groupMap[expense.groupId] || "N/A"}
-                </p>
+                <p><strong>Amount:</strong> ₹{expense.amount}</p>
+                <p><strong>Paid By:</strong> {expense.paidBy || "N/A"}</p>
+                <p><strong>Group:</strong> {groupMap[expense.groupId] || "N/A"}</p>
               </div>
             );
           })}
