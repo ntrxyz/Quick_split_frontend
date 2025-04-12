@@ -1,6 +1,6 @@
-// AllExpenses.jsx - Updated version
 import React, { useEffect, useState } from "react";
 import { getGroupById } from "../../../services/GroupService";
+import { getUserProfile } from "../../../services/userService";
 import "./AllExpenses.css";
 import { useExpenseContext } from "../../../context/ExpenseContext";
 import { Link } from "react-router-dom";
@@ -8,7 +8,9 @@ import { Link } from "react-router-dom";
 const AllExpenses = () => {
   const { expenses, loading } = useExpenseContext();
   const [groupMap, setGroupMap] = useState({});
-  
+  const [userMap, setUserMap] = useState({});
+
+  // Fetch groups and map group IDs to group names.
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -16,19 +18,57 @@ const AllExpenses = () => {
         const groupResponses = await Promise.all(
           groupIds.map((id) => getGroupById(id))
         );
+
         const map = {};
         groupResponses.forEach((group) => {
-          map[group.id] = group.name;
+          // Use _id or id depending on the object structure.
+          map[group._id || group.id] = group.name;
         });
         setGroupMap(map);
       } catch (error) {
         console.error("Error fetching group names:", error);
       }
     };
-    
+
     if (expenses.length > 0) fetchGroups();
   }, [expenses]);
-  
+
+  // Fetch user details for all unique user IDs across expenses.
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const uniqueUserIds = new Set();
+        expenses.forEach((exp) => {
+          if (exp.paidBy) uniqueUserIds.add(exp.paidBy);
+          if (exp.sharedWith && Array.isArray(exp.sharedWith)) {
+            exp.sharedWith.forEach((id) => {
+              if (id) uniqueUserIds.add(id);
+            });
+          }
+        });
+
+        const userIds = Array.from(uniqueUserIds);
+        // Using Promise.allSettled so one failure doesn't fail the whole mapping
+        const responses = await Promise.allSettled(
+          userIds.map((id) => getUserProfile(id))
+        );
+        const map = {};
+        responses.forEach((result) => {
+          if (result.status === "fulfilled") {
+            const user = result.value;
+            // Map the user ID to a display name: use user.name if available; fallback to email.
+            map[user._id || user.id] = user.name || user.email;
+          }
+        });
+        setUserMap(map);
+      } catch (e) {
+        console.error("Error fetching user details:", e);
+      }
+    };
+
+    if (expenses.length > 0) fetchUsers();
+  }, [expenses]);
+
   return (
     <div className="expenses-container">
       <h2>Your Expenses</h2>
@@ -39,17 +79,12 @@ const AllExpenses = () => {
       ) : (
         <div className="expenses-grid">
           {expenses.map((expense, index) => {
-            console.log("Expense:", expense); // Log the full expense object to see its structure
-            
-            // Check for id or _id - databases often use either format
+            // Check for id or _id — databases might use either.
             const expenseId = expense.id || expense._id;
-            console.log("Expense ID:", expenseId);
-            
             if (!expenseId) {
               console.error("No ID found for expense:", expense);
-              return null; // Skip rendering this expense if no ID found
+              return null; // Skip rendering this expense if no ID is found.
             }
-            
             const colorClass = `colorful-border-${index % 5}`;
             return (
               <Link
@@ -59,9 +94,25 @@ const AllExpenses = () => {
               >
                 <div className={`expense-card ${colorClass}`}>
                   <h3>{expense.description}</h3>
-                  <p><strong>Amount:</strong> ₹{expense.amount}</p>
-                  <p><strong>Paid By:</strong> {expense.paidBy || "N/A"}</p>
-                  <p><strong>Group:</strong> {groupMap[expense.groupId] || "N/A"}</p>
+                  <p>
+                    <strong>Amount:</strong> ₹{expense.amount}
+                  </p>
+                  <p>
+                    <strong>Paid By:</strong>{" "}
+                    {userMap[expense.paidBy] || expense.paidBy || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Group:</strong>{" "}
+                    {groupMap[expense.groupId] || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Shared With:</strong>{" "}
+                    {expense.sharedWith && expense.sharedWith.length > 0
+                      ? expense.sharedWith
+                          .map((id) => userMap[id] || id)
+                          .join(", ")
+                      : "None"}
+                  </p>
                 </div>
               </Link>
             );

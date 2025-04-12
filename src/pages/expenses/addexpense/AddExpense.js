@@ -1,11 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import { GroupsContext } from "../../../context/GroupsContext";
-import { getUserProfile } from "../../../services/userService";
+import { getUserProfile, getUserByEmail } from "../../../services/userService";
 import { addExpense } from "../../../services/ExpenseService";
 import { getGroupById } from "../../../services/GroupService";
 import "./AddExpense.css";
 import { useExpenseContext } from "../../../context/ExpenseContext";
-
 
 const AddExpense = () => {
   const { groups } = useContext(GroupsContext);
@@ -13,11 +12,13 @@ const AddExpense = () => {
   const [groupUsers, setGroupUsers] = useState([]);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
-  const [paidBy, setPaidBy] = useState(""); // Will store user ID
+  // We now store the selected user's email from the dropdown.
+  const [paidBy, setPaidBy] = useState("");
+  // Participants are stored as emails too.
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { fetchExpenses } = useExpenseContext(); 
+  const { fetchExpenses } = useExpenseContext();
 
   useEffect(() => {
     const fetchGroupDetails = async () => {
@@ -35,6 +36,7 @@ const AddExpense = () => {
           throw new Error("Invalid group data structure");
         }
 
+        // Fetch each member's profile. (We assume the returned object includes an email.)
         const userProfiles = await Promise.all(
           groupData.members.map(async (memberId) => {
             try {
@@ -62,10 +64,25 @@ const AddExpense = () => {
     fetchGroupDetails();
   }, [selectedGroupId]);
 
-  const handleParticipantChange = (userId) => {
+  // Toggle participant selection based on email value.
+  const handleParticipantChange = (email) => {
     setParticipants((prev) =>
-      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
+      prev.includes(email)
+        ? prev.filter((item) => item !== email)
+        : [...prev, email]
     );
+  };
+
+  // Convert an email to a user ID using the getUserByEmail service.
+  const convertEmailToUserId = async (email) => {
+    try {
+      const user = await getUserByEmail(email);
+      // Use whichever property the user object returns.
+      return user._id || user.id || user.userId;
+    } catch (error) {
+      console.error(`Error converting email ${email} to user id:`, error);
+      return null;
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -86,26 +103,52 @@ const AddExpense = () => {
         return;
       }
 
-      // Convert all participant IDs to strings if they aren't already
-      const formattedParticipants = participants.map(id => String(id));
-      
+      // Convert the payer's email to a proper user ID.
+      const payerId = await convertEmailToUserId(paidBy);
+
+      // Convert each participant email to its user ID.
+      const convertedParticipants = await Promise.all(
+        participants.map((email) => convertEmailToUserId(email))
+      );
+      // Filter out any unsuccessful conversions.
+      const validParticipants = convertedParticipants.filter((id) => id);
+
+      // Ensure that the payer's ID is included.
+      const sharedWith = validParticipants.includes(payerId)
+        ? validParticipants
+        : [...validParticipants, payerId];
+
+      // Build the payload using user IDs.
       const payload = {
         userId,
         groupId: selectedGroupId,
         description,
         amount: parseFloat(amount),
-        paidBy: String(paidBy), // Ensure paidBy is a string
-        sharedWith: formattedParticipants, // Array of user ID strings
+        paidBy: payerId,
+        sharedWith,
       };
 
       console.log("✅ Expense Payload:", payload);
       const result = await addExpense(payload);
-      console.log("✅ Expense added:", result);
+      console.log("✅ Expense added (raw response):", result);
+
+      // Optionally override any populated values (like email) from the backend with our payload values.
+      const expenseToStore = {
+        id: result._id || result.id,
+        userId: result.userId,
+        groupId: result.groupId,
+        description: result.description,
+        amount: result.amount,
+        paidBy: payload.paidBy,            // ensures user ID is used
+        sharedWith: payload.sharedWith,    // ensures user IDs array is used
+      };
+
+      console.log("✅ Transformed Expense:", expenseToStore);
       alert("Expense added successfully!");
 
       await fetchExpenses();
 
-      // Reset form
+      // Reset the form
       setDescription("");
       setAmount("");
       setPaidBy("");
@@ -149,7 +192,7 @@ const AddExpense = () => {
             <div className="form-group">
               <label>Description:</label>
               <input
-                type="text" 
+                type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Enter expense description"
@@ -170,13 +213,11 @@ const AddExpense = () => {
 
             <div className="form-group">
               <label>Paid By:</label>
-              <select
-                value={paidBy}
-                onChange={(e) => setPaidBy(e.target.value)}
-              >
+              <select value={paidBy} onChange={(e) => setPaidBy(e.target.value)}>
                 <option value="">Select User</option>
                 {groupUsers.map((user) => (
-                  <option key={user._id} value={user._id}>
+                  // Use the user's email as the value so we can later convert it to an ID.
+                  <option key={user.email} value={user.email}>
                     {user.email}
                   </option>
                 ))}
@@ -187,16 +228,14 @@ const AddExpense = () => {
               <label>Select Participants:</label>
               <div className="participants-list">
                 {groupUsers.map((user) => (
-                  <div key={user._id} className="participant-item">
+                  <div key={user.email} className="participant-item">
                     <input
                       type="checkbox"
-                      id={`participant-${user._id}`}
-                      checked={participants.includes(user._id)}
-                      onChange={() => handleParticipantChange(user._id)}
+                      id={`participant-${user.email}`}
+                      checked={participants.includes(user.email)}
+                      onChange={() => handleParticipantChange(user.email)}
                     />
-                    <label htmlFor={`participant-${user._id}`}>
-                      {user.email}
-                    </label>
+                    <label htmlFor={`participant-${user.email}`}>{user.email}</label>
                   </div>
                 ))}
               </div>

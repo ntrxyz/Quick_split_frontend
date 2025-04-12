@@ -10,6 +10,7 @@ import AddUserToAGroup from "../groups/AddUserToAGroup";
 import Sidebar from "../../components/sidebar/Sidebar";
 import AddExpense from "../expenses/addexpense/AddExpense";
 import AllExpenses from "../expenses/allexpenses/AllExpenses";
+import { useExpenseContext } from "../../context/ExpenseContext";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const Dashboard = () => {
   const initialTab = queryParams.get("tab") || "dashboard";
 
   const [activeTab, setActiveTab] = useState(initialTab);
+  const { expenses, loading } = useExpenseContext();
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -25,13 +27,35 @@ const Dashboard = () => {
     navigate("/");
   };
 
+  // Calculate balance details based on the current logged in user
+  const currentUser = localStorage.getItem("userId");
+
+  let totalOwedToMe = 0; // Money others owe you (for expenses you paid)
+  let totalIOwe = 0; // Money you owe (for expenses you did not pay)
+
+  expenses.forEach((exp) => {
+    if (exp.sharedWith && exp.sharedWith.length > 0 && exp.amount > 0) {
+      // Calculate an equal share
+      const share = parseFloat(exp.amount) / exp.sharedWith.length;
+      if (exp.paidBy === currentUser) {
+        // If you paid, then you're owed the extra you covered beyond your share.
+        totalOwedToMe += (parseFloat(exp.amount) - share);
+      } else if (exp.sharedWith.includes(currentUser)) {
+        // Otherwise you owe your share.
+        totalIOwe += share;
+      }
+    }
+  });
+  // Net balance: What you're owed minus what you owe.
+  const totalBalance = totalOwedToMe - totalIOwe;
+
   return (
     <div className="dashboard-container">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="dashboard">
         <header>
-          <h2>Dashboard</h2>
+          <h2 onClick={() => setActiveTab("dashboard")}>Dashboard</h2>
           <div>
             <img
               src={profile}
@@ -63,10 +87,7 @@ const Dashboard = () => {
                 </button>
               </li>
               <li>
-                <button
-                  className="dropdown-item"
-                  onClick={handleLogout}
-                >
+                <button className="dropdown-item" onClick={handleLogout}>
                   Logout
                 </button>
               </li>
@@ -96,16 +117,36 @@ const Dashboard = () => {
         </header>
 
         {activeTab === "dashboard" && (
-          <div className="balance-summary">
-            <p>
-              Total Balance: <span className="positive">$302.00</span>
-            </p>
-            <p>
-              You Owe: <span className="neutral">$5.00</span>
-            </p>
-            <p>
-              You Are Owed: <span className="positive">$302.00</span>
-            </p>
+          <div>
+            <div className="balance-summary my-3">
+              {loading ? (
+                <p>Loading balance...</p>
+              ) : (
+                <>
+                  <p>
+                    Total Balance:{" "}
+                    <span className={totalBalance >= 0 ? "positive" : "negative"}>
+                      ₹{totalBalance.toFixed(2)}
+                    </span>
+                  </p>
+                  <p>
+                    You Owe:{" "}
+                    <span className="neutral">
+                      ₹{totalIOwe.toFixed(2)}
+                    </span>
+                  </p>
+                  <p>
+                    You Are Owed:{" "}
+                    <span className="positive">
+                      ₹{totalOwedToMe.toFixed(2)}
+                    </span>
+                  </p>
+                </>
+              )}
+            </div>
+            <div>
+              <AllExpenses />
+            </div>
           </div>
         )}
 

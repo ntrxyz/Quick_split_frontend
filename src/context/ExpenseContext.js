@@ -18,12 +18,23 @@ export const ExpenseProvider = ({ children }) => {
     }
   };
 
+  // New function that updates the state by removing the deleted expense.
+  const removeExpenseFromContext = (expenseId) => {
+    setExpenses((prevExpenses) =>
+      prevExpenses.filter(
+        (exp) => exp._id !== expenseId && exp.id !== expenseId
+      )
+    );
+  };
+
   useEffect(() => {
     fetchExpenses();
   }, []);
 
   return (
-    <ExpenseContext.Provider value={{ expenses, setExpenses, fetchExpenses, loading }}>
+    <ExpenseContext.Provider
+      value={{ expenses, setExpenses, fetchExpenses, loading, removeExpenseFromContext }}
+    >
       {children}
     </ExpenseContext.Provider>
   );

@@ -3,27 +3,65 @@ import "./Report.css";
 import { FaFilter, FaFileInvoiceDollar } from "react-icons/fa";
 import { Bar, Pie } from "react-chartjs-2";
 import "chart.js/auto";
+import { useExpenseContext } from "../../context/ExpenseContext";
 
 const Report = () => {
-  const [transactions, setTransactions] = useState([]);
+  // Get expenses and loading flag from the ExpenseContext
+  const { expenses, loading } = useExpenseContext();
+  // Retrieve current user's ID from local storage
+  const currentUser = localStorage.getItem("userId");
 
-  useEffect(() => {
-    setTransactions([
-      { id: 1, name: "John", amount: 25, status: "Pending" },
-      { id: 2, name: "Emma", amount: 40, status: "Paid" },
-      { id: 3, name: "Alice", amount: 60, status: "Pending" },
-      { id: 4, name: "Mike", amount: 100, status: "Paid" },
-      { id: 5, name: "Sophia", amount: 75, status: "Pending" },
-    ]);
-  }, []);
+  /** 
+   * Calculation of Summary:
+   *
+   * - For each expense, we assume the expense is split equally among all members in its "sharedWith" array.
+   * - If the current user is the payer, then the extra amount (total amount minus one share) is what
+   *   others owe you (i.e. "You Are Owed").
+   * - If the current user is not the payer (but is in the sharedWith array), then you owe your equal share.
+   */
+  let totalOwedToMe = 0; // Amount others owe you (for expenses you paid)
+  let totalIOwe = 0;     // Amount you owe (for shared expenses where you didn't pay)
 
-  // Bar Chart Data (Expense Growth)
+  expenses.forEach((exp) => {
+    if (exp.sharedWith && exp.sharedWith.length > 0 && exp.amount) {
+      const share = parseFloat(exp.amount) / exp.sharedWith.length;
+      if (exp.paidBy === currentUser) {
+        totalOwedToMe += parseFloat(exp.amount) - share;
+      } else if (exp.sharedWith.includes(currentUser)) {
+        totalIOwe += share;
+      }
+    }
+  });
+
+  // Net balance: positive means you are owed, negative means you owe.
+  const totalBalance = totalOwedToMe - totalIOwe;
+
+  /**
+   * Bar Chart Data: Expense Growth.
+   *
+   * If each expense had a "createdAt" property, a grouping by month would be possible.
+   * Otherwise, this example will fall back to dummy data.
+   */
+  const monthlyData = {};
+  expenses.forEach((exp) => {
+    if (exp.createdAt) {
+      const month = new Date(exp.createdAt).toLocaleString("default", { month: "short" });
+      monthlyData[month] = (monthlyData[month] || 0) + parseFloat(exp.amount);
+    }
+  });
+  const barLabels =
+    Object.keys(monthlyData).length > 0
+      ? Object.keys(monthlyData)
+      : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
+  const barValues =
+    Object.keys(monthlyData).length > 0 ? Object.values(monthlyData) : [500, 700, 1000, 1200, 800, 950, 1300];
+
   const barChartData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+    labels: barLabels,
     datasets: [
       {
-        label: "Expenses ($)",
-        data: [500, 700, 1000, 1200, 800, 950, 1300],
+        label: "Expenses (₹)",
+        data: barValues,
         backgroundColor: "rgba(0, 183, 255, 0.8)",
         borderColor: "rgba(0, 183, 255, 1)",
         borderWidth: 3,
@@ -47,23 +85,29 @@ const Report = () => {
       },
     },
     plugins: {
-      legend: {
-        display: false,
-      },
+      legend: { display: false },
     },
   };
 
-  // Pie Chart Data (Pending vs Paid)
+  /**
+   * Pie Chart: Expense Breakdown.
+   *
+   * For the pie chart, we use the counts of expenses where:
+   * - "Paid by You": expenses where the current user is the payer.
+   * - "Shared Expense": expenses where the current user is NOT the payer but is included in sharedWith.
+   */
+  const paidByYouCount = expenses.filter((exp) => exp.paidBy === currentUser).length;
+  const sharedCount = expenses.filter(
+    (exp) => exp.paidBy !== currentUser && exp.sharedWith.includes(currentUser)
+  ).length;
+
   const pieChartData = {
-    labels: ["Pending", "Paid"],
+    labels: ["Paid by You", "Shared Expense"],
     datasets: [
       {
-        data: [
-          transactions.filter((t) => t.status === "Pending").length,
-          transactions.filter((t) => t.status === "Paid").length,
-        ],
-        backgroundColor: ["#ffcc00", "#4caf50"],
-        borderColor: ["#b38f00", "#2e7d32"],
+        data: [paidByYouCount, sharedCount],
+        backgroundColor: ["#4caf50", "#ffcc00"],
+        borderColor: ["#2e7d32", "#b38f00"],
         borderWidth: 2,
         hoverOffset: 8,
       },
@@ -75,10 +119,7 @@ const Report = () => {
       legend: {
         display: true,
         position: "bottom",
-        labels: {
-          color: "#fff",
-          font: { size: 14 },
-        },
+        labels: { color: "#fff", font: { size: 14 } },
       },
       tooltip: {
         backgroundColor: "rgba(0,0,0,0.7)",
@@ -97,13 +138,18 @@ const Report = () => {
       <div className="summary-cards">
         <div className="card">
           <FaFileInvoiceDollar size={40} />
-          <h3>Total Expenses</h3>
-          <p>$1250</p>
+          <h3>Total Balance</h3>
+          <p>₹{totalBalance.toFixed(2)}</p>
         </div>
         <div className="card">
           <FaFilter size={40} />
-          <h3>Pending Amount</h3>
-          <p>$85</p>
+          <h3>You Owe</h3>
+          <p>₹{totalIOwe.toFixed(2)}</p>
+        </div>
+        <div className="card">
+          <FaFileInvoiceDollar size={40} />
+          <h3>You Are Owed</h3>
+          <p>₹{totalOwedToMe.toFixed(2)}</p>
         </div>
       </div>
 
