@@ -162,3 +162,17 @@
     margin-bottom: 4px;
   }
   
+  .settle-up-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 1rem;
+  }
+  
+  .settle-up-button:hover {
+    background-color: #45a049;
+  }

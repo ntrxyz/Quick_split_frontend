@@ -10,6 +10,9 @@ import { getGroupById } from "../../../services/GroupService";
 import { getUserProfile } from "../../../services/userService";
 import { useExpenseContext } from "../../../context/ExpenseContext";
 import { Pencil, Trash2 } from "lucide-react";
+import axios from "axios";
+import config from "../../../Config";
+import { loadStripe } from "@stripe/stripe-js";
 
 const ExpenseDetails = () => {
   const { expenseId } = useParams();
@@ -131,8 +134,58 @@ const ExpenseDetails = () => {
     }
   };
 
- 
+  
 
+  const handleSettleUp = async () => {
+    try {
+      // Validate expense data before proceeding.
+      if (!expense || !expense.amount || expense.amount <= 0) {
+        alert("Invalid expense details or amount.");
+        return;
+      }
+  
+      // Convert the expense amount (a double) to a whole number (integer) in rupees.
+      // You could use Math.round() to round to the nearest rupee.
+      const amountInRupees = Math.round(expense.amount);
+      
+      // Prepare form data
+      const formData = new URLSearchParams();
+      formData.append("amount", amountInRupees.toString());
+      
+      console.log("Form data entries:", Object.fromEntries(formData.entries()));
+  
+      // Construct the URL (ensure it matches your backend endpoints)
+      const url = `${config.backendUrl}/stripe/create-checkout-session`;
+      console.log("Request URL:", url);
+  
+      // Send POST request to the backend
+      const response = await axios.post(url, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+      console.log("Response from backend:", response.data);
+  
+      // Initialize Stripe with the public key
+      const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+      if (!stripe) {
+        throw new Error("Stripe failed to load.");
+      }
+  
+      const sessionId = response.data.id;
+      console.log("Redirecting with sessionId:", sessionId);
+  
+      const result = await stripe.redirectToCheckout({ sessionId });
+      if (result.error) {
+        console.error("Stripe Checkout error:", result.error.message);
+        alert("Failed to redirect to Stripe Checkout: " + result.error.message);
+      }
+    } catch (error) {
+      console.error("Settle Up error:", error.response?.data || error.message);
+      alert("An error occurred while settling up. Please try again later.");
+    }
+  };
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this expense?")) {
       try {
@@ -271,6 +324,12 @@ const ExpenseDetails = () => {
                 <p>No one</p>
               )}
             </div>
+
+            {!isEditing && !expense.isSettled && (
+  <button onClick={handleSettleUp} className="settle-up-button">
+    Settle Up
+  </button>
+)}
           </div>
         )}
       </div>

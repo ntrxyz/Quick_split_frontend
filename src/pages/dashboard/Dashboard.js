@@ -11,6 +11,10 @@ import Sidebar from "../../components/sidebar/Sidebar";
 import AddExpense from "../expenses/addexpense/AddExpense";
 import AllExpenses from "../expenses/allexpenses/AllExpenses";
 import { useExpenseContext } from "../../context/ExpenseContext";
+import axios from "axios";
+import { loadStripe } from "@stripe/stripe-js";
+import config from "../../Config";
+
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -20,6 +24,47 @@ const Dashboard = () => {
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const { expenses, loading } = useExpenseContext();
+
+  
+  const handleSettleUp = async () => {
+    const userId = localStorage.getItem("userId");
+    const amount = 1000; // Use the amount dynamically or set it as needed
+  
+    try {
+      // Create x-www-form-urlencoded data
+      const formData = new URLSearchParams();
+      formData.append("amount", amount); // Append the amount
+     
+  
+      const response = await axios.post(
+        `${config.backendUrl}/stripe/create-checkout-session`, // Your backend API endpoint
+        formData, // Send the formData
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`, // Bearer token from localStorage
+            "Content-Type": "application/x-www-form-urlencoded", // Required content type for form data
+          },
+        }
+      );
+  
+      // Initialize Stripe with the public key
+      const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY); // Make sure to set this in your .env
+  
+      const sessionId = response.data.id; // Assuming the backend sends an 'id' for the sessionId
+  
+      // Redirect the user to Stripe Checkout
+      const result = await stripe.redirectToCheckout({
+        sessionId, // Pass the sessionId to Stripe for the checkout session
+      });
+  
+      if (result.error) {
+        console.error("Stripe Checkout error:", result.error.message);
+      }
+    } catch (error) {
+      console.error("Stripe checkout error:", error);
+    }
+  };
+  
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -98,7 +143,7 @@ const Dashboard = () => {
             >
               Add an Expense
             </button>
-            <button className="settle-up mx-2">Settle Up</button>
+            <button className="settle-up mx-2" onClick={handleSettleUp}>Settle Up</button>
             <img
               src={logout}
               alt="Logout"

@@ -9,11 +9,16 @@ import CreateGroup from "./pages/groups/CreateGroup";
 import { GroupsProvider } from "./context/GroupsContext";
 import GroupDetails from "./pages/groups/GroupDetails";
 import { ExpenseProvider } from "./context/ExpenseContext";
-import ExpenseDetails from "./pages/expenses/expensedetails/ExpenseDetails"
+import ExpenseDetails from "./pages/expenses/expensedetails/ExpenseDetails";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
 
 const App = () => {
   return (
+    <Elements stripe={stripePromise}>
     <ExpenseProvider>
     <GroupsProvider>
     <Router>
@@ -31,6 +36,7 @@ const App = () => {
     </Router>
     </GroupsProvider>
     </ExpenseProvider>
+    </Elements>
   );
 };
 
