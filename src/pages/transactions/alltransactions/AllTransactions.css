@@ -1,0 +1,59 @@
+/* Container styling */
+.all-transactions {
+    background-color: #f9f9f9;
+    padding: 20px;
+    max-width: 1000px;
+    margin: 20px auto;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+  }
+  
+  /* Title styling */
+  .all-transactions h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #444;
+  }
+  
+  /* Table container styling */
+  .all-transactions table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  /* Header / cell styling */
+  .all-transactions th,
+  .all-transactions td {
+    padding: 12px 15px;
+    text-align: center;
+  }
+  
+  /* Table header styling */
+  .all-transactions th {
+    background-color: #4CAF50; /* A green tone */
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  
+  /* Table row styling */
+  .all-transactions td {
+    border-bottom: 1px solid #ececec;
+    font-size: 0.9rem;
+  }
+  
+  /* Zebra-striping rows */
+  .all-transactions tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  /* Row hover effect */
+  .all-transactions tr:hover {
+    background-color: #e8f5e9;
+    transition: background-color 0.3s ease;
+  }

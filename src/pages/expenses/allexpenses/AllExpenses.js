@@ -56,7 +56,7 @@ const AllExpenses = () => {
         responses.forEach((result) => {
           if (result.status === "fulfilled") {
             const user = result.value;
-            // Map the user ID to a display name: use user.name if available; fallback to email.
+            // Map user ID to a display name (using user.name if available; fallback to email)
             map[user._id || user.id] = user.name || user.email;
           }
         });
@@ -83,7 +83,7 @@ const AllExpenses = () => {
             const expenseId = expense.id || expense._id;
             if (!expenseId) {
               console.error("No ID found for expense:", expense);
-              return null; // Skip rendering this expense if no ID is found.
+              return null; // Skip rendering if no ID exists.
             }
             const colorClass = `colorful-border-${index % 5}`;
             return (
@@ -93,6 +93,10 @@ const AllExpenses = () => {
                 className="expense-link"
               >
                 <div className={`expense-card ${colorClass}`}>
+                  {/* Badge for settling the expense (visible if not settled) */}
+                  {(!expense.isSettled || expense.isSettled === false) && (
+                    <span className="settleup-badge">Settle Up</span>
+                  )}
                   <h3>{expense.description}</h3>
                   <p>
                     <strong>Amount:</strong> ₹{expense.amount}
@@ -102,8 +106,7 @@ const AllExpenses = () => {
                     {userMap[expense.paidBy] || expense.paidBy || "N/A"}
                   </p>
                   <p>
-                    <strong>Group:</strong>{" "}
-                    {groupMap[expense.groupId] || "N/A"}
+                    <strong>Group:</strong> {groupMap[expense.groupId] || "N/A"}
                   </p>
                   <p>
                     <strong>Shared With:</strong>{" "}

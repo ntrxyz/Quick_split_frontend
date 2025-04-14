@@ -26,6 +26,7 @@
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease;
+    position:relative;
 }
 
 .expense-card:hover {
@@ -47,6 +48,21 @@
 .expense-link {
     text-decoration: none;
     color: inherit;
+  }
+
+
+  /* Badge styling that makes it always visible */
+  .settleup-badge {
+    background-color: #ff9800; /* An attention-grabbing orange */
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    position: absolute; /* Always position absolute within .expense-card */
+    top: 8px;
+    right: 8px;
+    z-index: 1;
+    display: inline-block; /* Ensure it's rendered as a block-level element */
   }
   
 

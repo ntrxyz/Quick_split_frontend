@@ -163,6 +163,7 @@
   }
   
   .settle-up-button {
+    width: 45%;
     background-color: #4caf50;
     color: white;
     border: none;
@@ -171,8 +172,26 @@
     cursor: pointer;
     margin-top: 10px;
     font-size: 1rem;
+    font-weight: bold;
   }
   
   .settle-up-button:hover {
     background-color: #45a049;
   }
+
+  .cash-payment-button {
+    width: 45%;
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #2196f3;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cash-payment-button:hover {
+  background-color: #2196f3;
+}

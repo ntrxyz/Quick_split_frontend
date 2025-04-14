@@ -14,6 +14,7 @@ import { useExpenseContext } from "../../context/ExpenseContext";
 import axios from "axios";
 import { loadStripe } from "@stripe/stripe-js";
 import config from "../../Config";
+import AllTransactions from "../transactions/alltransactions/AllTransactions";
 
 
 const Dashboard = () => {
@@ -194,7 +195,8 @@ const Dashboard = () => {
             </div>
           </div>
         )}
-
+        
+        {activeTab === "transactions" && <AllTransactions/>}
         {activeTab === "profile" && <Profile />}
         {activeTab === "reports" && <Report />}
         {activeTab === "groups" && <Groups />}

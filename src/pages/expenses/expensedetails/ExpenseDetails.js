@@ -1,6 +1,6 @@
 import "./ExpenseDetails.css";
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, navigate } from "react-router-dom";
 import {
   getExpenseById,
   updateExpense,
@@ -13,6 +13,8 @@ import { Pencil, Trash2 } from "lucide-react";
 import axios from "axios";
 import config from "../../../Config";
 import { loadStripe } from "@stripe/stripe-js";
+import { recordPayment } from "../../../services/TransactionService";
+
 
 const ExpenseDetails = () => {
   const { expenseId } = useParams();
@@ -137,55 +139,75 @@ const ExpenseDetails = () => {
   
 
   const handleSettleUp = async () => {
-    try {
-      // Validate expense data before proceeding.
-      if (!expense || !expense.amount || expense.amount <= 0) {
-        alert("Invalid expense details or amount.");
-        return;
-      }
-  
-      // Convert the expense amount (a double) to a whole number (integer) in rupees.
-      // You could use Math.round() to round to the nearest rupee.
-      const amountInRupees = Math.round(expense.amount);
-      
-      // Prepare form data
-      const formData = new URLSearchParams();
-      formData.append("amount", amountInRupees.toString());
-      
-      console.log("Form data entries:", Object.fromEntries(formData.entries()));
-  
-      // Construct the URL (ensure it matches your backend endpoints)
-      const url = `${config.backendUrl}/stripe/create-checkout-session`;
-      console.log("Request URL:", url);
-  
-      // Send POST request to the backend
-      const response = await axios.post(url, formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      });
-      console.log("Response from backend:", response.data);
-  
-      // Initialize Stripe with the public key
-      const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
-      if (!stripe) {
-        throw new Error("Stripe failed to load.");
-      }
-  
-      const sessionId = response.data.id;
-      console.log("Redirecting with sessionId:", sessionId);
-  
-      const result = await stripe.redirectToCheckout({ sessionId });
-      if (result.error) {
-        console.error("Stripe Checkout error:", result.error.message);
-        alert("Failed to redirect to Stripe Checkout: " + result.error.message);
-      }
-    } catch (error) {
-      console.error("Settle Up error:", error.response?.data || error.message);
-      alert("An error occurred while settling up. Please try again later.");
+  try {
+    const currentUser = localStorage.getItem("userId");
+
+    if (!expense || !expense.amount || expense.amount <= 0) {
+      alert("Invalid expense details or amount.");
+      return;
     }
-  };
+
+    // If the current user is the payer, they typically wouldn't settle up their own expense.
+    if (expense.paidBy === currentUser) {
+      alert("You are the payer for this expense; you don't need to pay your own amount.");
+      return;
+    }
+
+    // Ensure that the current user is part of the expense's participants
+    if (!expense.sharedWith || !expense.sharedWith.includes(currentUser)) {
+      alert("You are not a participant in this expense.");
+      return;
+    }
+
+    // Calculate the user's share from the expense.
+    const shareExact = parseFloat(expense.amount) / expense.sharedWith.length;
+    const amountToPay = Math.round(shareExact);
+    console.log("Current user's share amount (in rupees):", amountToPay);
+
+    // Store payment details in localStorage for retrieval after payment
+    localStorage.setItem("pendingPayment", JSON.stringify({
+      expenseId: expenseId,
+      payeeId: expense.paidBy,
+      amount: amountToPay,
+      groupId: expense.groupId,
+      timestamp: new Date().toISOString()
+    }));
+
+    // Prepare form data with the computed share amount.
+    const formData = new URLSearchParams();
+    formData.append("amount", amountToPay.toString());
+
+    // Construct the request URL
+    const url = `${config.backendUrl}/stripe/create-checkout-session`;
+
+    // POST the data to the backend.
+    const response = await axios.post(url, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+
+    // Initialize Stripe using your public key from the .env file.
+    const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+    if (!stripe) {
+      throw new Error("Stripe failed to load.");
+    }
+    
+    const sessionId = response.data.id;
+
+    // Redirect to Stripe Checkout.
+    const result = await stripe.redirectToCheckout({ sessionId });
+    if (result.error) {
+      console.error("Stripe Checkout error:", result.error.message);
+      alert("Failed to redirect to Stripe Checkout: " + result.error.message);
+    }
+  } catch (error) {
+    console.error("Settle Up error:", error.response?.data || error.message);
+    alert("An error occurred while settling up. Please try again later.");
+  }
+};
+  
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this expense?")) {
       try {
@@ -199,6 +221,52 @@ const ExpenseDetails = () => {
       }
     }
   };
+
+  const handleCashPayment = async () => {
+    try {
+      const currentUser = localStorage.getItem("userId");
+  
+      if (!expense || !expense.amount || expense.amount <= 0) {
+        alert("Invalid expense details or amount.");
+        return;
+      }
+  
+      if (expense.paidBy === currentUser) {
+        alert("You don't need to pay yourself.");
+        return;
+      }
+  
+      if (!expense.sharedWith || !expense.sharedWith.includes(currentUser)) {
+        alert("You are not a participant in this expense.");
+        return;
+      }
+  
+      const shareExact = parseFloat(expense.amount) / expense.sharedWith.length;
+      const amountToPay = Math.round(shareExact);
+  
+      const confirm = window.confirm(`Confirm cash payment of ₹${amountToPay} to ${paidByUser?.name || 'payer'}?`);
+      if (!confirm) return;
+  
+      const transactionData = {
+        payerId: currentUser,
+        payeeId: expense.paidBy,
+        amount: amountToPay,
+        groupId: expense.groupId,
+        expenseId: expenseId,
+        method: "cash",
+      };
+  
+      await recordPayment(transactionData);
+      navigate("/dashboard?tab=transactions");
+  
+      // Optional: if one payment settles the whole transaction, update UI here
+      // e.g. mark expense as settled or disable buttons
+    } catch (error) {
+      console.error("Error recording cash payment:", error);
+      alert("Failed to record cash payment.");
+    }
+  };
+  
 
   if (loading) return <div>Loading expense details...</div>;
   if (error) return <div>{error}</div>;
@@ -326,10 +394,18 @@ const ExpenseDetails = () => {
             </div>
 
             {!isEditing && !expense.isSettled && (
-  <button onClick={handleSettleUp} className="settle-up-button">
+              <div>
+  <button onClick={handleSettleUp} className="settle-up-button mx-4">
     Settle Up
   </button>
+
+<button onClick={handleCashPayment} className="cash-payment-button">
+Record Cash Payment
+</button>
+</div>
 )}
+
+
           </div>
         )}
       </div>

@@ -1,108 +1,177 @@
+/* Background & card styling (existing) */
 .group-details-bg {
-    background: url("../../assets/groupbg.png") no-repeat center center fixed;
-    background-size: cover;
-    padding: 40px;
-    min-height: 100vh;
-  }
-  
-  .group-details-card {
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    max-width: 800px;
-    margin: auto;
-  }
-  
-  .group-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #2d3436;
-    text-align: center;
-    margin-bottom: 30px;
-    text-shadow: 1px 1px #dfe6e9;
-  }
-  
-  .group-section {
-    margin-bottom: 30px;
-  }
-  
-  .member-list {
-    list-style: none;
-    padding-left: 0;
-  }
-  
-  .member-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #ecf0f1;
-    padding: 10px 15px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-  }
+  background: url("../../assets/groupbg.png") no-repeat center center fixed;
+  background-size: cover;
+  padding: 40px;
+  min-height: 100vh;
+}
 
-  .member-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 4px;
-  }
-  
-  .member-username {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #2c3e50;
-    display: flex;
-    align-items: center;
-  }
-  
-  .member-email {
-    font-size: 0.95rem;
-    font-weight: 400;
-    color: #636e72;
-    display: flex;
-    align-items: center;
-  }
-  
-  .icon {
-    margin-right: 8px;
-    font-size: 1.1rem;
-  }
-  
-  
-  
-  .remove-btn {
-    background-color: #d63031;
-    color: white;
-    border: none;
-    padding: 6px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .remove-btn:hover {
-    background-color: #c0392b;
-  }
-  
-  .add-user-item {
-    text-align: center;
-    margin-top: 10px;
-  }
-  
-  .add-user-btn {
-    background-color: #27ae60;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
-  }
-  
-  .add-user-btn:hover {
-    background-color: #219653;
-  }
-  
+.group-details-card {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.group-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #2d3436;
+  text-align: center;
+  margin-bottom: 30px;
+  text-shadow: 1px 1px #dfe6e9;
+}
+
+.group-section {
+  margin-bottom: 30px;
+}
+
+.member-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.member-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ecf0f1;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.member-username {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+}
+
+.member-email {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: #636e72;
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
+.remove-btn {
+  background-color: #d63031;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.remove-btn:hover {
+  background-color: #c0392b;
+}
+
+.add-user-item {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.add-user-btn {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.add-user-btn:hover {
+  background-color: #219653;
+}
+
+/* New Flex container for group details and transactions sidebar */
+.group-details-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Main group details card takes most of the space */
+.group-details-card {
+  flex: 1 1 600px;
+}
+
+/* Transactions Sidebar Styling */
+.transactions-sidebar {
+  flex: 0 0 370px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.transactions-sidebar h2 {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #2d3436;
+}
+
+/* Transaction Card Styling */
+.transaction-card {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-card h3 {
+  font-size: 1rem;
+  margin-bottom: 5px;
+  color: #4caf50;
+}
+
+.transaction-card p {
+  margin: 3px 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+/* Expense Card (if needed, inherited styling, adjust as necessary) */
+.expense-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+
+.expense-card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}

@@ -44,6 +44,12 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
             Reports
           </li>
           <li
+            className={`my-2 ${activeTab === "transactions" ? "active" : ""}`}
+            onClick={() => setActiveTab("transactions")}
+          >
+            Recent Transactions
+          </li>
+          <li
             className={`my-2 ${activeTab === "groups" ? "active" : ""}`}
             onClick={() => setActiveTab("groups")}
           >
