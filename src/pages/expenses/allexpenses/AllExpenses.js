@@ -9,6 +9,7 @@ const AllExpenses = () => {
   const { expenses, loading } = useExpenseContext();
   const [groupMap, setGroupMap] = useState({});
   const [userMap, setUserMap] = useState({});
+  const loggedInUserId = localStorage.getItem("userId"); // or you can get this from your Auth context
 
   // Fetch groups and map group IDs to group names.
   useEffect(() => {
@@ -18,7 +19,6 @@ const AllExpenses = () => {
         const groupResponses = await Promise.all(
           groupIds.map((id) => getGroupById(id))
         );
-
         const map = {};
         groupResponses.forEach((group) => {
           // Use _id or id depending on the object structure.
@@ -41,14 +41,11 @@ const AllExpenses = () => {
         expenses.forEach((exp) => {
           if (exp.paidBy) uniqueUserIds.add(exp.paidBy);
           if (exp.sharedWith && Array.isArray(exp.sharedWith)) {
-            exp.sharedWith.forEach((id) => {
-              if (id) uniqueUserIds.add(id);
-            });
+            exp.sharedWith.forEach((id) => id && uniqueUserIds.add(id));
           }
         });
-
         const userIds = Array.from(uniqueUserIds);
-        // Using Promise.allSettled so one failure doesn't fail the whole mapping
+        // Using Promise.allSettled so one failure doesn't break the mapping.
         const responses = await Promise.allSettled(
           userIds.map((id) => getUserProfile(id))
         );
@@ -93,17 +90,33 @@ const AllExpenses = () => {
                 className="expense-link"
               >
                 <div className={`expense-card ${colorClass}`}>
-                  {/* Badge for settling the expense (visible if not settled) */}
-                  {(!expense.isSettled || expense.isSettled === false) && (
+                  {/* Badge on top.
+                      - If the logged in user is the payer, show "You paid"
+                      - Else if the logged in user has settled the expense, show "Settled"
+                      - Otherwise, show "Settle Up"
+                  */}
+                  {expense.paidBy === loggedInUserId ? (
+                    <span className="settleup-badge tick">You paid</span>
+                  ) : expense.settledBy?.includes(loggedInUserId) ? (
+                    <span className="settleup-badge tick">Settled</span>
+                  ) : (
                     <span className="settleup-badge">Settle Up</span>
                   )}
+
                   <h3>{expense.description}</h3>
                   <p>
                     <strong>Amount:</strong> ₹{expense.amount}
                   </p>
                   <p>
                     <strong>Paid By:</strong>{" "}
-                    {userMap[expense.paidBy] || expense.paidBy || "N/A"}
+                    <span>
+                      {userMap[expense.paidBy] || expense.paidBy || "N/A"}
+                      {/* If the expense has been settled, add a green tick icon */}
+                      {expense.settledBy &&
+                        expense.settledBy.length > 0 && (
+                          <span className="green-tick"> ✓</span>
+                        )}
+                    </span>
                   </p>
                   <p>
                     <strong>Group:</strong> {groupMap[expense.groupId] || "N/A"}

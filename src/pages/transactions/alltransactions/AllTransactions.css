@@ -1,11 +1,12 @@
 /* Container styling */
 .all-transactions {
-    background-color: #f9f9f9;
+    background-color: rgba(255, 255, 255, 0.85);
     padding: 20px;
     max-width: 1000px;
     margin: 20px auto;
     font-family: 'Arial', sans-serif;
     color: #333;
+    border-radius: 10px;
   }
   
   /* Title styling */
@@ -20,7 +21,7 @@
   .all-transactions table {
     width: 100%;
     border-collapse: collapse;
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.85);
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     border-radius: 8px;
     overflow: hidden;

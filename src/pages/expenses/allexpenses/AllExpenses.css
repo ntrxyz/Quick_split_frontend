@@ -1,69 +1,113 @@
+/* Overall container styling */
 .expenses-container {
     padding: 20px;
-    background: rgba(255, 255, 255, 0.85);;
+    background: rgba(255, 255, 255, 0.95); /* Slightly more solid background for better readability */
     min-height: 100vh;
     border-radius: 10px;
-}
-
-.expenses-container h2 {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* Subtle box-shadow for depth */
+  }
+  
+  /* Title styling */
+  .expenses-container h2 {
     text-align: center;
     margin-bottom: 30px;
-    font-size: 2rem;
-    color: #ff7043;
-    font-weight: bolder;
-}
-
-.expenses-grid {
+    font-size: 2.2rem;
+    color: #ff5722; /* Slightly darker orange for better contrast */
+    font-weight: 700;
+  }
+  
+  /* Grid layout for expense cards */
+  .expenses-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Slightly wider cards */
     gap: 20px;
     padding: 0 20px;
-}
-
-.expense-card {
-    background: rgba(255, 255, 255, 0.85);;
+  }
+  
+  /* Individual expense card styling */
+  .expense-card {
+    background: #ffffff; /* Pure white for contrast */
     border-radius: 16px;
     padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease;
-    position:relative;
-}
-
-.expense-card:hover {
-    transform: translateY(-5px);
-}
-
-.expense-card h3 {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1); /* Enhanced shadow for a cleaner look */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+    position: relative;
+  }
+  
+  .expense-card:hover {
+    transform: translateY(-8px); /* More defined hover animation */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); /* Slightly darker hover shadow */
+  }
+  
+  /* Expense title styling */
+  .expense-card h3 {
     margin-top: 0;
-    font-size: 1.2rem;
-    color: #ff7043;
+    font-size: 1.4rem; /* Larger font for importance */
+    color: #f44336; /* Bright color for title focus */
     font-weight: bold;
-}
-
-.expense-card p {
-    margin: 8px 0;
-    color: #555;
-}
-
-.expense-link {
+  }
+  
+  /* Expense card text */
+  .expense-card p {
+    margin: 10px 0; /* Increased spacing for better readability */
+    font-size: 1rem;
+    color: #555; /* Neutral text color */
+  }
+  
+  /* Link styling to prevent interference */
+  .expense-link {
     text-decoration: none;
     color: inherit;
   }
-
-
-  /* Badge styling that makes it always visible */
+  
+  /* Badge styling: attention-grabbing labels */
   .settleup-badge {
-    background-color: #ff9800; /* An attention-grabbing orange */
-    color: #fff;
-    padding: 4px 8px;
-    font-size: 0.75rem;
-    border-radius: 4px;
-    position: absolute; /* Always position absolute within .expense-card */
-    top: 8px;
-    right: 8px;
+    background-color: #fb8c00; /* Vivid orange for prominence */
+    color: #ffffff;
+    padding: 5px 10px; /* Larger padding for easier readability */
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 12px; /* Rounded appearance for modern design */
+    position: absolute;
+    top: 10px;
+    right: 10px;
     z-index: 1;
-    display: inline-block; /* Ensure it's rendered as a block-level element */
+    display: inline-block;
+    transition: background-color 0.3s ease;
   }
   
-
-
+  .settleup-badge.tick {
+    background-color: #4caf50; /* Green for positive "settled" state */
+    color: #ffffff;
+    font-weight: 700; /* Bold text for emphasis */
+  }
+  
+  /* Green tick styling next to "Paid By" field */
+  .green-tick {
+    color: #4caf50;
+    font-weight: bold;
+    margin-left: 8px;
+    font-size: 1rem;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .expenses-grid {
+      grid-template-columns: 1fr; /* Single column layout on smaller screens */
+      gap: 15px;
+    }
+  
+    .expense-card {
+      padding: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  
+    .expense-card h3 {
+      font-size: 1.2rem;
+    }
+  
+    .settleup-badge {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+    }
+  }
