@@ -55,10 +55,10 @@ const Report = () => {
   });
   const barLabels = Object.keys(monthlyData).length > 0
     ? Object.keys(monthlyData)
-    : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
+    : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"]; // Default months
   const barValues = Object.keys(monthlyData).length > 0
     ? Object.values(monthlyData)
-    : [500, 700, 1000, 1200, 800, 950, 1300];
+    : Array(barLabels.length).fill(0); // Empty values when no data
 
   const barChartData = {
     labels: barLabels,
@@ -103,7 +103,7 @@ const Report = () => {
     labels: ["Paid by You", "Shared Expense"],
     datasets: [
       {
-        data: [paidByYouCount, sharedCount],
+        data: expenses.length > 0 ? [paidByYouCount, sharedCount] : [0, 0], // Empty data for no expenses
         backgroundColor: ["#4caf50", "#ffcc00"],
         borderColor: ["#2e7d32", "#b38f00"],
         borderWidth: 2,

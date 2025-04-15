@@ -53,7 +53,7 @@ const AllTransactions = () => {
 
   if (loadingTransactions) return <p>Loading transactions...</p>;
   if (error) return <p>{error}</p>;
-  if (!transactions.length) return <p>No transactions found.</p>;
+  if (!transactions.length) return <p className="no-transactions">No transactions found.</p>;
 
   return (
     <div className="all-transactions">
