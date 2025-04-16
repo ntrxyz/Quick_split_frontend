@@ -4,6 +4,8 @@ import { getUserProfile } from "../../../services/userService";
 import "./AllExpenses.css";
 import { useExpenseContext } from "../../../context/ExpenseContext";
 import { Link } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 
 const AllExpenses = () => {
   const { expenses, loading } = useExpenseContext();
@@ -21,12 +23,13 @@ const AllExpenses = () => {
         );
         const map = {};
         groupResponses.forEach((group) => {
-          // Use _id or id depending on the object structure.
           map[group._id || group.id] = group.name;
         });
         setGroupMap(map);
+       
       } catch (error) {
         console.error("Error fetching group names:", error);
+        toast.error("Failed to load group data. Please try again.");
       }
     };
 
@@ -45,7 +48,6 @@ const AllExpenses = () => {
           }
         });
         const userIds = Array.from(uniqueUserIds);
-        // Using Promise.allSettled so one failure doesn't break the mapping.
         const responses = await Promise.allSettled(
           userIds.map((id) => getUserProfile(id))
         );
@@ -53,13 +55,14 @@ const AllExpenses = () => {
         responses.forEach((result) => {
           if (result.status === "fulfilled") {
             const user = result.value;
-            // Map user ID to a display name (using user.name if available; fallback to email)
             map[user._id || user.id] = user.name || user.email;
           }
         });
         setUserMap(map);
-      } catch (e) {
-        console.error("Error fetching user details:", e);
+        
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+        toast.error("Failed to load user data. Please try again.");
       }
     };
 
@@ -76,11 +79,11 @@ const AllExpenses = () => {
       ) : (
         <div className="expenses-grid">
           {expenses.map((expense, index) => {
-            // Check for id or _id — databases might use either.
             const expenseId = expense.id || expense._id;
             if (!expenseId) {
               console.error("No ID found for expense:", expense);
-              return null; // Skip rendering if no ID exists.
+              toast.error("Error: Invalid expense data encountered.");
+              return null;
             }
             const colorClass = `colorful-border-${index % 5}`;
             return (
@@ -90,11 +93,6 @@ const AllExpenses = () => {
                 className="expense-link"
               >
                 <div className={`expense-card ${colorClass}`}>
-                  {/* Badge on top.
-                      - If the logged in user is the payer, show "You paid"
-                      - Else if the logged in user has settled the expense, show "Settled"
-                      - Otherwise, show "Settle Up"
-                  */}
                   {expense.paidBy === loggedInUserId ? (
                     <span className="settleup-badge tick">You paid</span>
                   ) : expense.settledBy?.includes(loggedInUserId) ? (
@@ -111,7 +109,6 @@ const AllExpenses = () => {
                     <strong>Paid By:</strong>{" "}
                     <span>
                       {userMap[expense.paidBy] || expense.paidBy || "N/A"}
-                      {/* If the expense has been settled, add a green tick icon */}
                       {expense.settledBy &&
                         expense.settledBy.length > 0 && (
                           <span className="green-tick"> ✓</span>
@@ -135,6 +132,9 @@ const AllExpenses = () => {
           })}
         </div>
       )}
+
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { recordPayment } from "../../../services/TransactionService";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./PaymentSuccess.css";
 
 const PaymentSuccess = () => {
@@ -9,7 +11,7 @@ const PaymentSuccess = () => {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // This ref will guard against recording the payment more than once.
   const hasRecordedPaymentRef = useRef(false);
 
@@ -18,22 +20,23 @@ const PaymentSuccess = () => {
       try {
         const queryParams = new URLSearchParams(location.search);
         const sessionId = queryParams.get("session_id");
-  
+
         if (!sessionId) {
           setError("Missing payment session information");
           setLoading(false);
           return;
         }
-  
+
         // 🔐 Step 1: Check if this session was already recorded
-        const recordedSessions = JSON.parse(localStorage.getItem("recordedStripeSessions")) || [];
+        const recordedSessions =
+          JSON.parse(localStorage.getItem("recordedStripeSessions")) || [];
         if (recordedSessions.includes(sessionId)) {
           console.log("Transaction already recorded for this session.");
           setSuccess(true);
           setLoading(false);
           return;
         }
-  
+
         const storedPayment = localStorage.getItem("pendingPayment");
         if (!storedPayment) {
           console.log("No pending payment found – probably already processed.");
@@ -42,21 +45,21 @@ const PaymentSuccess = () => {
           return;
         }
         const paymentDetails = JSON.parse(storedPayment);
-  
+
         const token = localStorage.getItem("authToken");
         if (!token) {
           setError("Authentication error. Please log in again.");
           setLoading(false);
           return;
         }
-  
+
         if (hasRecordedPaymentRef.current) {
           console.log("Payment already recorded in this session.");
           setSuccess(true);
           setLoading(false);
           return;
         }
-  
+
         const transactionData = {
           expenseId: paymentDetails.expenseId,
           payerId: localStorage.getItem("userId"),
@@ -64,20 +67,23 @@ const PaymentSuccess = () => {
           amount: paymentDetails.amount,
           stripeSessionId: sessionId,
           paymentMethod: "stripe",
-          groupId: paymentDetails.groupId
+          groupId: paymentDetails.groupId,
         };
-  
+
         console.log("Sending transaction data:", transactionData);
         await recordPayment(transactionData);
-  
+
         // ✅ Step 2: Mark as recorded
         hasRecordedPaymentRef.current = true;
         localStorage.removeItem("pendingPayment");
-  
+
         // ✅ Step 3: Save session ID to prevent re-recording on reload
         recordedSessions.push(sessionId);
-        localStorage.setItem("recordedStripeSessions", JSON.stringify(recordedSessions));
-  
+        localStorage.setItem(
+          "recordedStripeSessions",
+          JSON.stringify(recordedSessions)
+        );
+
         setSuccess(true);
         setLoading(false);
       } catch (err) {
@@ -86,7 +92,9 @@ const PaymentSuccess = () => {
           if (err.response.status === 403) {
             setError("Permission denied. You may need to log in again.");
           } else {
-            setError(`Server error: ${err.response.status}. Please contact support.`);
+            setError(
+              `Server error: ${err.response.status}. Please contact support.`
+            );
           }
         } else {
           setError("Failed to record your payment. Please contact support.");
@@ -94,10 +102,23 @@ const PaymentSuccess = () => {
         setLoading(false);
       }
     };
-  
+
     createTransaction();
   }, [location.search]);
-  
+
+  // Trigger a toast if an error occurs
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
+  // Trigger a toast if payment is successful
+  useEffect(() => {
+    if (success) {
+      toast.success("Payment Successful!");
+    }
+  }, [success]);
 
   const handleGoBack = () => {
     navigate("/dashboard?tab=expenses");
@@ -124,6 +145,7 @@ const PaymentSuccess = () => {
             Return to Dashboard
           </button>
         </div>
+        <ToastContainer position="top-right" autoClose={3000} />
       </div>
     );
   }
@@ -138,6 +160,7 @@ const PaymentSuccess = () => {
           Return to Dashboard
         </button>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

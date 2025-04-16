@@ -1,30 +1,32 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // Import Axios
-import config from "../../Config"; // ✅ Import backend config
+import axios from "axios";
+import config from "../../Config";
 import "./Login.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import the CSS for Toastify
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // To navigate after login
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Clear previous errors
+    setError(null);
 
     try {
       const response = await axios.post(
         `${config.backendUrl}/auth/login`,
-        null, // ✅ `data` must be `null` since we're using `params`
+        null,
         {
-          params: { email, password }, // ✅ Send email & password as query params
+          params: { email, password },
           withCredentials: true,
         }
       );
 
-      console.log("🔹 API Response:", response.data); // ✅ Debug API response
+      console.log("🔹 API Response:", response.data);
 
       if (response.status === 200) {
         const token = response.data.token;
@@ -35,18 +37,25 @@ const Login = () => {
           throw new Error("Invalid API response.");
         }
 
-        // ✅ Store token with the correct key
         localStorage.setItem("authToken", token);
         localStorage.setItem("userId", userId);
 
         console.log("✅ Token saved:", localStorage.getItem("authToken"));
         console.log("✅ User ID saved:", localStorage.getItem("userId"));
 
-        navigate("/dashboard"); // Redirect after login
+        // Success toast notification
+        toast.success("Login successful! Redirecting to dashboard...");
+        setTimeout(() => {
+          navigate("/dashboard"); // Redirect after a short delay
+        }, 1000); 
+        
       }
     } catch (err) {
       setError("Invalid email or password. Please try again.");
       console.error("Login error:", err.response?.data || err.message);
+
+      // Error toast notification
+      toast.error("Invalid email or password. Please try again.");
     }
   };
 
@@ -87,6 +96,9 @@ const Login = () => {
         <p className="register-link">
           Don't have an account? <Link to="/signup">Sign Up</Link>
         </p>
+
+        {/* Toast Container for notifications */}
+        <ToastContainer position="top-right" autoClose={3000} />
       </div>
     </div>
   );

@@ -5,6 +5,8 @@ import { addExpense } from "../../../services/ExpenseService";
 import { getGroupById } from "../../../services/GroupService";
 import "./AddExpense.css";
 import { useExpenseContext } from "../../../context/ExpenseContext";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 
 const AddExpense = () => {
   const { groups } = useContext(GroupsContext);
@@ -12,9 +14,7 @@ const AddExpense = () => {
   const [groupUsers, setGroupUsers] = useState([]);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
-  // We now store the selected user's email from the dropdown.
   const [paidBy, setPaidBy] = useState("");
-  // Participants are stored as emails too.
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -36,7 +36,6 @@ const AddExpense = () => {
           throw new Error("Invalid group data structure");
         }
 
-        // Fetch each member's profile. (We assume the returned object includes an email.)
         const userProfiles = await Promise.all(
           groupData.members.map(async (memberId) => {
             try {
@@ -55,7 +54,7 @@ const AddExpense = () => {
         setParticipants([]);
       } catch (err) {
         console.error("Error fetching group data:", err);
-        setError("Failed to load group members. Please try again.");
+        toast.error("Failed to load group members. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -64,7 +63,6 @@ const AddExpense = () => {
     fetchGroupDetails();
   }, [selectedGroupId]);
 
-  // Toggle participant selection based on email value.
   const handleParticipantChange = (email) => {
     setParticipants((prev) =>
       prev.includes(email)
@@ -73,11 +71,9 @@ const AddExpense = () => {
     );
   };
 
-  // Convert an email to a user ID using the getUserByEmail service.
   const convertEmailToUserId = async (email) => {
     try {
       const user = await getUserByEmail(email);
-      // Use whichever property the user object returns.
       return user._id || user.id || user.userId;
     } catch (error) {
       console.error(`Error converting email ${email} to user id:`, error);
@@ -89,7 +85,7 @@ const AddExpense = () => {
     e.preventDefault();
 
     if (!selectedGroupId || !description || !amount || !paidBy || participants.length === 0) {
-      setError("Please fill in all fields and select at least one participant.");
+      toast.error("Please fill in all fields and select at least one participant.");
       return;
     }
 
@@ -99,26 +95,21 @@ const AddExpense = () => {
 
       const userId = localStorage.getItem("userId");
       if (!userId) {
-        setError("You are not logged in. Please log in and try again.");
+        toast.error("You are not logged in. Please log in and try again.");
         return;
       }
 
-      // Convert the payer's email to a proper user ID.
       const payerId = await convertEmailToUserId(paidBy);
 
-      // Convert each participant email to its user ID.
       const convertedParticipants = await Promise.all(
         participants.map((email) => convertEmailToUserId(email))
       );
-      // Filter out any unsuccessful conversions.
       const validParticipants = convertedParticipants.filter((id) => id);
 
-      // Ensure that the payer's ID is included.
       const sharedWith = validParticipants.includes(payerId)
         ? validParticipants
         : [...validParticipants, payerId];
 
-      // Build the payload using user IDs.
       const payload = {
         userId,
         groupId: selectedGroupId,
@@ -132,23 +123,21 @@ const AddExpense = () => {
       const result = await addExpense(payload);
       console.log("✅ Expense added (raw response):", result);
 
-      // Optionally override any populated values (like email) from the backend with our payload values.
       const expenseToStore = {
         id: result._id || result.id,
         userId: result.userId,
         groupId: result.groupId,
         description: result.description,
         amount: result.amount,
-        paidBy: payload.paidBy,            // ensures user ID is used
-        sharedWith: payload.sharedWith,    // ensures user IDs array is used
+        paidBy: payload.paidBy,
+        sharedWith: payload.sharedWith,
       };
 
       console.log("✅ Transformed Expense:", expenseToStore);
-      alert("Expense added successfully!");
+      toast.success("Expense added successfully!");
 
       await fetchExpenses();
 
-      // Reset the form
       setDescription("");
       setAmount("");
       setPaidBy("");
@@ -156,7 +145,7 @@ const AddExpense = () => {
       setSelectedGroupId("");
     } catch (err) {
       console.error("❌ Error adding expense:", err);
-      setError(`Failed to add expense: ${err.message || "Unknown error"}`);
+      toast.error(`Failed to add expense: ${err.message || "Unknown error"}`);
     } finally {
       setLoading(false);
     }
@@ -165,8 +154,6 @@ const AddExpense = () => {
   return (
     <div className="add-expense-page">
       <h2>Add New Expense</h2>
-
-      {error && <div className="error-message">{error}</div>}
 
       <form onSubmit={handleSubmit} className="expense-form">
         <div className="form-group">
@@ -216,7 +203,6 @@ const AddExpense = () => {
               <select value={paidBy} onChange={(e) => setPaidBy(e.target.value)}>
                 <option value="">Select User</option>
                 {groupUsers.map((user) => (
-                  // Use the user's email as the value so we can later convert it to an ID.
                   <option key={user.email} value={user.email}>
                     {user.email}
                   </option>
@@ -253,6 +239,9 @@ const AddExpense = () => {
           </div>
         )}
       </form>
+
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={1000} />
     </div>
   );
 };

@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useTransaction } from "../../../context/TransactionContext";
 import { getGroupById } from "../../../services/GroupService";
 import { getUserProfile } from "../../../services/userService";
-import "./AllTransactions.css"; // optional styling
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./AllTransactions.css";
 
 const AllTransactions = () => {
   const { transactions, loadingTransactions, error } = useTransaction();
@@ -24,7 +26,10 @@ const AllTransactions = () => {
           });
           setGroupMap(map);
         })
-        .catch((error) => console.error("Error fetching groups:", error));
+        .catch((err) => {
+          console.error("Error fetching groups:", err);
+          toast.error("Error fetching groups: " + err.message);
+        });
     }
   }, [transactions]);
 
@@ -45,15 +50,24 @@ const AllTransactions = () => {
           });
           setUserMap(map);
         })
-        .catch((error) =>
-          console.error("Error fetching user profiles:", error)
-        );
+        .catch((err) => {
+          console.error("Error fetching user profiles:", err);
+          toast.error("Error fetching user profiles: " + err.message);
+        });
     }
   }, [transactions]);
 
+  // Show toast if there's an error in transaction context.
+  useEffect(() => {
+    if (error) {
+      toast.error("Error: " + error);
+    }
+  }, [error]);
+
   if (loadingTransactions) return <p>Loading transactions...</p>;
-  if (error) return <p>{error}</p>;
-  if (!transactions.length) return <p className="no-transactions">No transactions found.</p>;
+  if (error) return <p className="error-message">{error}</p>;
+  if (!transactions.length)
+    return <p className="no-transactions">No transactions found.</p>;
 
   return (
     <div className="all-transactions">
@@ -80,6 +94,7 @@ const AllTransactions = () => {
           ))}
         </tbody>
       </table>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

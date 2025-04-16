@@ -195,3 +195,12 @@
 .cash-payment-button:hover {
   background-color: #2196f3;
 }
+
+.confirm-payment-btn{
+  background-color: #2196f3;
+  color: whitesmoke;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}

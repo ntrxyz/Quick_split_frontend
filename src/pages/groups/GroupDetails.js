@@ -4,12 +4,14 @@ import { getGroupById, removeUserFromGroup } from "../../services/GroupService";
 import { getUserProfile } from "../../services/userService";
 import { getExpensesByGroup } from "../../services/ExpenseService";
 import { getGroupTransactions } from "../../services/TransactionService";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./GroupDetails.css";
 
 const GroupDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [group, setGroup] = useState(null);
   const [loading, setLoading] = useState(true);
   const [memberDetails, setMemberDetails] = useState([]);
@@ -23,57 +25,109 @@ const GroupDetails = () => {
         const data = await getGroupById(id);
         setGroup(data);
 
-        // Fetch member profiles; this returns an array of user objects.
+        // Fetch member profiles (returns an array of user objects)
         const members = await Promise.all(
           data.members.map((userId) => getUserProfile(userId))
         );
         setMemberDetails(members);
 
-        // Fetch group expenses.
+        // Fetch group expenses
         const expenses = await getExpensesByGroup(id);
         setGroupExpenses(expenses);
 
-        // Fetch group transactions.
+        // Fetch group transactions
         const transactions = await getGroupTransactions(id);
         setGroupTransactions(transactions);
+
+        toast.success("✅ Group details loaded successfully!");
       } catch (error) {
         console.error("Failed to load group details:", error);
-        alert("Group not found, redirecting to groups list.");
+        toast.error("❌ Group not found, redirecting to groups list.");
         navigate("/groups");
       } finally {
         setLoading(false);
       }
     };
+
     fetchGroup();
   }, [id, navigate]);
 
-  // Create a mapping from user id to member details (for easy lookup).
+  // Create a map of userId to member details for quick lookup
   const memberMap = {};
-  memberDetails.forEach(member => {
+  memberDetails.forEach((member) => {
     const userId = member.id || member._id;
     if (userId) {
       memberMap[userId] = member;
     }
   });
 
-  const handleRemoveMember = async (userId) => {
-    if (!window.confirm("Are you sure you want to remove this user?")) return;
-    try {
-      await removeUserFromGroup(group.id, userId);
-      setMemberDetails((prev) => prev.filter((m) => (m.id || m._id) !== userId));
-    } catch (error) {
-      console.error("Failed to remove user:", error);
-      alert("Failed to remove user from group.");
-    }
+  // Remove member using a custom toast with buttons for confirmation
+  const handleRemoveMember = (userId) => {
+    toast(
+      ({ closeToast }) => (
+        <div>
+          <p>Are you sure you want to remove this user?</p>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <button
+              style={{
+                backgroundColor: "#4caf50",
+                border: "none",
+                color: "white",
+                padding: "5px 10px",
+                cursor: "pointer",
+              }}
+              onClick={async () => {
+                try {
+                  await removeUserFromGroup(group.id, userId);
+                  setMemberDetails((prev) =>
+                    prev.filter((m) => (m.id || m._id) !== userId)
+                  );
+                  toast.success("✅ User removed from group successfully!");
+                } catch (error) {
+                  console.error("Failed to remove user:", error);
+                  toast.error("❌ Failed to remove user from group.");
+                } finally {
+                  closeToast();
+                }
+              }}
+            >
+              Confirm
+            </button>
+            <button
+              style={{
+                backgroundColor: "#f44336",
+                border: "none",
+                color: "white",
+                padding: "5px 10px",
+                cursor: "pointer",
+              }}
+              onClick={closeToast}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        position: "top-right",
+        autoClose: false, // The toast will remain until one of the buttons is clicked
+        closeOnClick: false,
+        draggable: false,
+      }
+    );
   };
 
   const handleExpenseClick = (expenseId) => {
     navigate(`/expenses/${expenseId}`);
   };
 
-  if (loading)
+  if (loading) {
     return <div className="group-loading">Loading group details...</div>;
-  if (!group) return <div className="group-not-found">Group not found.</div>;
+  }
+
+  if (!group) {
+    return <div className="group-not-found">Group not found.</div>;
+  }
 
   return (
     <div className="group-details-bg">
@@ -172,7 +226,7 @@ const GroupDetails = () => {
                 : tx.payeeId;
               return (
                 <div key={txId} className="transaction-card">
-                  <h3 className="transaction-title">Txn : </h3>
+                  <h3 className="transaction-title">Txn :</h3>
                   <p>
                     <strong>Amount:</strong> ₹{tx.amount}
                   </p>
@@ -191,6 +245,9 @@ const GroupDetails = () => {
           )}
         </div>
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import config from "../../Config"; // ✅ Import backend config
+import config from "../../Config";
 import "./SignUp.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import the Toastify CSS
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -11,8 +13,7 @@ const SignUp = () => {
     password: "",
   });
 
-  const [error, setError] = useState("");
-  const navigate = useNavigate(); // Use navigate for redirection
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,26 +21,29 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
 
     if (!formData.name || !formData.email || !formData.password) {
-      setError("All fields are required!");
+      toast.error("All fields are required!");
       return;
     }
 
     try {
       const response = await axios.post(`${config.backendUrl}/auth/register`, formData, {
-        withCredentials: true, // ✅ Ensure cookies (if needed)
+        withCredentials: true,
       });
 
-      console.log("🔹 Signup API Response:", response.data); // ✅ Debug API response
+      console.log("🔹 Signup API Response:", response.data);
 
       if (response.status === 200) {
-        navigate("/login"); // Redirect to login page
+        // Success toast notification
+        toast.success("Signup successful! Redirecting to login...");
+        setTimeout(() => {
+          navigate("/login"); // Redirect after a short delay
+        }, 3000); // Wait 3 seconds before navigating
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Signup failed. Please try again.");
       console.error("❌ Signup error:", err.response?.data || err.message);
+      toast.error(err.response?.data?.message || "Signup failed. Please try again.");
     }
   };
 
@@ -48,8 +52,6 @@ const SignUp = () => {
       <div className="signup-box">
         <h2>Create an Account</h2>
         <p>Create a free account to manage expenses.</p>
-
-        {error && <p className="error-message">{error}</p>}
 
         <form onSubmit={handleSubmit}>
           <input
@@ -82,6 +84,9 @@ const SignUp = () => {
         <p className="login-link">
           Already have an account? <Link to="/login">Log in</Link>
         </p>
+
+        {/* Toast Container */}
+        <ToastContainer position="top-right" autoClose={3000} />
       </div>
     </div>
   );

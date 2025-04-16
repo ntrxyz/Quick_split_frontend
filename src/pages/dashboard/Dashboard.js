@@ -16,6 +16,8 @@ import { useTransaction } from "../../context/TransactionContext";
 import axios from "axios";
 import { loadStripe } from "@stripe/stripe-js";
 import config from "../../Config";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import the Toastify CSS
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -27,49 +29,39 @@ const Dashboard = () => {
   const { expenses, loading } = useExpenseContext();
   const { transactions, loadingTransactions } = useTransaction();
 
-  // Get current user ID
   const currentUser = localStorage.getItem("userId");
 
-  // Expense-related calculations
-  let totalOwedToMeExpense = 0; // Money others owe you (from expenses you paid)
-  let totalIOweExpense = 0;     // Money you owe (for expenses you didn’t pay)
+  let totalOwedToMeExpense = 0;
+  let totalIOweExpense = 0;
 
   expenses.forEach((exp) => {
-    // Assuming exp.sharedWith is an array of user IDs excluding the payer
     const numParticipants = exp.sharedWith ? exp.sharedWith.length + 1 : 1;
     const share = parseFloat(exp.amount) / numParticipants;
     if (exp.paidBy === currentUser) {
-      totalOwedToMeExpense += (parseFloat(exp.amount) - share);
+      totalOwedToMeExpense += parseFloat(exp.amount) - share;
     } else if (exp.sharedWith && exp.sharedWith.includes(currentUser)) {
       totalIOweExpense += share;
     }
   });
 
-  // Transaction-related calculations
-  let transactionsNet = 0; // Settled amount offset via payments
+  let transactionsNet = 0;
   if (transactions && transactions.length > 0) {
     transactions.forEach((tx) => {
       if (tx.payeeId === currentUser) {
-        // Money you received through settlements reduces what is still owed to you.
         transactionsNet += Number(tx.amount);
       }
       if (tx.payerId === currentUser) {
-        // Money you paid out reduces what you owe.
         transactionsNet -= Number(tx.amount);
       }
     });
   }
 
-  // Final net outstanding balance calculation
-  const expenseNet = totalOwedToMeExpense - totalIOweExpense; // Outstanding from expenses alone
+  const expenseNet = totalOwedToMeExpense - totalIOweExpense;
   const finalNetBalance = expenseNet - transactionsNet;
-  // Note: Positive finalNetBalance means others owe you money.
-  // Negative finalNetBalance means you owe money.
 
   const handleSettleUp = async () => {
-    const amount = 1000; // You can adjust this or calculate dynamically as needed.
+    const amount = 1000;
     try {
-      // Create x-www-form-urlencoded data
       const formData = new URLSearchParams();
       formData.append("amount", amount.toString());
 
@@ -89,17 +81,20 @@ const Dashboard = () => {
       const sessionId = response.data.id;
       const result = await stripe.redirectToCheckout({ sessionId });
       if (result.error) {
-        console.error("Stripe Checkout error:", result.error.message);
+        toast.error(`Checkout failed: ${result.error.message}`);
       }
     } catch (error) {
-      console.error("Stripe checkout error:", error);
+      toast.error(`Stripe checkout error: ${error.message}`);
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userId");
-    navigate("/");
+    toast.info("You have been logged out successfully!");
+    setTimeout(() => {
+      navigate("/"); // Redirect after a short delay
+    }, 500);
   };
 
   return (
@@ -168,7 +163,7 @@ const Dashboard = () => {
         {activeTab === "dashboard" && (
           <div>
             <div className="balance-summary my-3">
-              {(loading || loadingTransactions) ? (
+              {loading || loadingTransactions ? (
                 <p>Calculating balance, please wait...</p>
               ) : (
                 <>
@@ -180,17 +175,12 @@ const Dashboard = () => {
                   </p>
                   <p>
                     You Owe:{" "}
-                    <span className="neutral">
-                      ₹{totalIOweExpense.toFixed(2)}
-                    </span>
+                    <span className="neutral">₹{totalIOweExpense.toFixed(2)}</span>
                   </p>
                   <p>
                     You Are Owed:{" "}
-                    <span className="positive">
-                      ₹{totalOwedToMeExpense.toFixed(2)}
-                    </span>
+                    <span className="positive">₹{totalOwedToMeExpense.toFixed(2)}</span>
                   </p>
-                  {/* Show a note that transactions have been applied */}
                   <p className="transactions-note">
                     (Settlements of ₹{transactionsNet.toFixed(2)} applied)
                   </p>
@@ -211,6 +201,9 @@ const Dashboard = () => {
         {activeTab === "add user to group" && <AddUserToAGroup />}
         {activeTab === "add-expense" && <AddExpense />}
       </main>
+
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

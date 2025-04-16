@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
-import {
-  getUserGroups,
-  deleteGroup,
-  updateGroupName,
-} from "../../services/GroupService";
+import { getUserGroups, deleteGroup, updateGroupName } from "../../services/GroupService";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Groups.css";
 
 const Groups = () => {
@@ -22,8 +20,10 @@ const Groups = () => {
         const data = await getUserGroups();
         console.log("📦 Fetched groups:", data);
         setGroups(data || []);
+        toast.success("✅ Groups loaded successfully!");
       } catch (error) {
         console.error("❌ Error fetching groups:", error);
+        toast.error("❌ Failed to load groups. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -32,26 +32,65 @@ const Groups = () => {
     fetchGroups();
   }, []);
 
-  // Delete group
-  const handleDeleteGroup = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this group?"
+  // Delete group using a custom toast confirmation with buttons
+  const handleDeleteGroup = (id) => {
+    toast(
+      ({ closeToast }) => (
+        <div>
+          <p>Are you sure you want to delete this group?</p>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <button
+              style={{
+                backgroundColor: "#4caf50",
+                border: "none",
+                color: "white",
+                padding: "5px 10px",
+                cursor: "pointer",
+                marginRight: "5px",
+              }}
+              onClick={async () => {
+                try {
+                  await deleteGroup(id);
+                  setGroups((prev) => prev.filter((group) => group.id !== id));
+                  toast.success("✅ Group deleted successfully!");
+                } catch (error) {
+                  console.error("❌ Failed to delete group:", error);
+                  toast.error("❌ Something went wrong while deleting the group.");
+                } finally {
+                  closeToast();
+                }
+              }}
+            >
+              Confirm
+            </button>
+            <button
+              style={{
+                backgroundColor: "#f44336",
+                border: "none",
+                color: "white",
+                padding: "5px 10px",
+                cursor: "pointer",
+              }}
+              onClick={closeToast}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        position: "top-right",
+        autoClose: false, // The toast will remain until one of the buttons is clicked
+        closeOnClick: false,
+        draggable: false,
+      }
     );
-    if (!confirmDelete) return;
-
-    try {
-      await deleteGroup(id);
-      setGroups((prev) => prev.filter((group) => group.id !== id));
-    } catch (error) {
-      console.error("❌ Failed to delete group:", error);
-      alert("Something went wrong while deleting the group.");
-    }
   };
 
   // Update group name
   const handleUpdateGroupName = async (groupId) => {
     if (!newGroupName.trim()) {
-      alert("⚠️ Group name cannot be empty!");
+      toast.warning("⚠️ Group name cannot be empty!");
       return;
     }
 
@@ -64,9 +103,10 @@ const Groups = () => {
       );
       setEditingGroupId(null);
       setNewGroupName("");
+      toast.success("✅ Group name updated successfully!");
     } catch (error) {
       console.error("❌ Error updating group name:", error);
-      alert("Failed to update group name.");
+      toast.error("❌ Failed to update group name.");
     }
   };
 
@@ -104,12 +144,7 @@ const Groups = () => {
                     <h3>{group.name}</h3>
                   </Link>
                 )}
-                <p>
-                  
-                  {group.recentExpense
-                    ? group.recentExpense
-                    : ""}
-                </p>
+                <p>{group.recentExpense ? group.recentExpense : ""}</p>
               </div>
 
               <div className="group-actions">
@@ -154,6 +189,9 @@ const Groups = () => {
           ))}
         </div>
       )}
+
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

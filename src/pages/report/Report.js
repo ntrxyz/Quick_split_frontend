@@ -5,6 +5,8 @@ import { Bar, Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import { useExpenseContext } from "../../context/ExpenseContext";
 import { useTransaction } from "../../context/TransactionContext";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Report = () => {
   const { expenses, loading: loadingExpenses } = useExpenseContext();
@@ -130,6 +132,13 @@ const Report = () => {
     maintainAspectRatio: false,
   };
 
+  // Show success toast once data loads successfully
+  useEffect(() => {
+    if (!loadingExpenses && !loadingTransactions) {
+      toast.success("✅ Report data loaded successfully!");
+    }
+  }, [loadingExpenses, loadingTransactions]);
+
   return (
     <div className="reports-container">
       <h2>Expense Reports</h2>
@@ -168,6 +177,8 @@ const Report = () => {
           </div>
         </div>
       </div>
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

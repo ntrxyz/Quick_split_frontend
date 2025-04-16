@@ -1,6 +1,6 @@
 import "./ExpenseDetails.css";
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, navigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   getExpenseById,
   updateExpense,
@@ -14,14 +14,14 @@ import axios from "axios";
 import config from "../../../Config";
 import { loadStripe } from "@stripe/stripe-js";
 import { recordPayment } from "../../../services/TransactionService";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ExpenseDetails = () => {
   const { expenseId } = useParams();
   const navigate = useNavigate();
   
   const { setExpenses, removeExpenseFromContext } = useExpenseContext();
-
 
   const [expense, setExpense] = useState(null);
   const [group, setGroup] = useState(null);
@@ -38,6 +38,26 @@ const ExpenseDetails = () => {
   // These states will hold the fetched user profiles.
   const [paidByUser, setPaidByUser] = useState(null);
   const [sharedWithUsers, setSharedWithUsers] = useState([]);
+
+  // Function to update expense with settled status
+  const updateExpenseSettledStatus = (payerId) => {
+    setExpenses((prevExpenses) =>
+      prevExpenses.map((exp) => {
+        if (exp._id === expenseId || exp.id === expenseId) {
+          // Create settledBy array if it doesn't exist or add userId to it
+          const settledBy = exp.settledBy ? [...exp.settledBy, payerId] : [payerId];
+          return { ...exp, settledBy };
+        }
+        return exp;
+      })
+    );
+    
+    // Also update the local expense state
+    if (expense) {
+      const updatedSettledBy = expense.settledBy ? [...expense.settledBy, payerId] : [payerId];
+      setExpense({ ...expense, settledBy: updatedSettledBy });
+    }
+  };
 
   useEffect(() => {
     const fetchExpenseDetails = async () => {
@@ -62,6 +82,7 @@ const ExpenseDetails = () => {
         }
       } catch (error) {
         setError("Failed to load expense details");
+        toast.error("Failed to load expense details");
       } finally {
         setLoading(false);
       }
@@ -70,8 +91,45 @@ const ExpenseDetails = () => {
     if (expenseId) fetchExpenseDetails();
     else {
       setError("No expense ID provided");
+      toast.error("No expense ID provided");
       setLoading(false);
     }
+  }, [expenseId]);
+
+  // Check for stripe payment success on component mount
+  useEffect(() => {
+    // Check for pending payments that were just completed
+    const checkPendingPayment = () => {
+      const pendingPaymentString = localStorage.getItem("pendingPayment");
+      if (!pendingPaymentString) return;
+
+      try {
+        const pendingPayment = JSON.parse(pendingPaymentString);
+        
+        // Check if this is the expense we just paid for
+        if (pendingPayment.expenseId === expenseId) {
+          // Get URL parameters
+          const urlParams = new URLSearchParams(window.location.search);
+          const paymentStatus = urlParams.get('payment_status');
+          
+          // If payment was successful
+          if (paymentStatus === 'success') {
+            // Update the expense with the settled status
+            const currentUser = localStorage.getItem("userId");
+            updateExpenseSettledStatus(currentUser);
+            toast.success("Payment completed successfully!");
+          }
+          
+          // Clear the pending payment data
+          localStorage.removeItem("pendingPayment");
+        }
+      } catch (error) {
+        console.error("Error processing pending payment:", error);
+        localStorage.removeItem("pendingPayment");
+      }
+    };
+    
+    checkPendingPayment();
   }, [expenseId]);
 
   // After expense is loaded, fetch the user profiles for paidBy and sharedWith fields.
@@ -130,96 +188,120 @@ const ExpenseDetails = () => {
         )
       );
       setIsEditing(false);
-      alert("Expense updated successfully!");
+      toast.success("Expense updated successfully!");
     } catch (error) {
-      alert("Failed to update expense.");
+      toast.error("Failed to update expense.");
     }
   };
 
-  
-
   const handleSettleUp = async () => {
-  try {
-    const currentUser = localStorage.getItem("userId");
+    try {
+      const currentUser = localStorage.getItem("userId");
 
-    if (!expense || !expense.amount || expense.amount <= 0) {
-      alert("Invalid expense details or amount.");
-      return;
+      if (!expense || !expense.amount || expense.amount <= 0) {
+        toast.error("Invalid expense details or amount.");
+        return;
+      }
+
+      // If the current user is the payer, they typically wouldn't settle up their own expense.
+      if (expense.paidBy === currentUser) {
+        toast.info("You are the payer for this expense; you don't need to pay your own amount.");
+        return;
+      }
+
+      // Ensure that the current user is part of the expense's participants
+      if (!expense.sharedWith || !expense.sharedWith.includes(currentUser)) {
+        toast.error("You are not a participant in this expense.");
+        return;
+      }
+
+      // Calculate the user's share from the expense.
+      const shareExact = parseFloat(expense.amount) / expense.sharedWith.length;
+      const amountToPay = Math.round(shareExact);
+      console.log("Current user's share amount (in rupees):", amountToPay);
+
+      // Store payment details in localStorage for retrieval after payment
+      localStorage.setItem("pendingPayment", JSON.stringify({
+        expenseId: expenseId,
+        payeeId: expense.paidBy,
+        amount: amountToPay,
+        groupId: expense.groupId,
+        payerId: currentUser,
+        timestamp: new Date().toISOString()
+      }));
+
+      // Prepare form data with the computed share amount.
+      const formData = new URLSearchParams();
+      formData.append("amount", amountToPay.toString());
+      formData.append("expenseId", expenseId);
+      formData.append("payerId", currentUser);
+
+      // Construct the request URL
+      const url = `${config.backendUrl}/stripe/create-checkout-session`;
+
+      // POST the data to the backend.
+      const response = await axios.post(url, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+
+      // Initialize Stripe using your public key from the .env file.
+      const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+      if (!stripe) {
+        throw new Error("Stripe failed to load.");
+      }
+      
+      const sessionId = response.data.id;
+
+      toast.info("Redirecting to payment gateway...");
+      
+      // Redirect to Stripe Checkout.
+      const result = await stripe.redirectToCheckout({ sessionId });
+      if (result.error) {
+        console.error("Stripe Checkout error:", result.error.message);
+        toast.error("Failed to redirect to Stripe Checkout: " + result.error.message);
+      }
+    } catch (error) {
+      console.error("Settle Up error:", error.response?.data || error.message);
+      toast.error("An error occurred while settling up. Please try again later.");
     }
-
-    // If the current user is the payer, they typically wouldn't settle up their own expense.
-    if (expense.paidBy === currentUser) {
-      alert("You are the payer for this expense; you don't need to pay your own amount.");
-      return;
-    }
-
-    // Ensure that the current user is part of the expense's participants
-    if (!expense.sharedWith || !expense.sharedWith.includes(currentUser)) {
-      alert("You are not a participant in this expense.");
-      return;
-    }
-
-    // Calculate the user's share from the expense.
-    const shareExact = parseFloat(expense.amount) / expense.sharedWith.length;
-    const amountToPay = Math.round(shareExact);
-    console.log("Current user's share amount (in rupees):", amountToPay);
-
-    // Store payment details in localStorage for retrieval after payment
-    localStorage.setItem("pendingPayment", JSON.stringify({
-      expenseId: expenseId,
-      payeeId: expense.paidBy,
-      amount: amountToPay,
-      groupId: expense.groupId,
-      timestamp: new Date().toISOString()
-    }));
-
-    // Prepare form data with the computed share amount.
-    const formData = new URLSearchParams();
-    formData.append("amount", amountToPay.toString());
-
-    // Construct the request URL
-    const url = `${config.backendUrl}/stripe/create-checkout-session`;
-
-    // POST the data to the backend.
-    const response = await axios.post(url, formData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    });
-
-    // Initialize Stripe using your public key from the .env file.
-    const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
-    if (!stripe) {
-      throw new Error("Stripe failed to load.");
-    }
-    
-    const sessionId = response.data.id;
-
-    // Redirect to Stripe Checkout.
-    const result = await stripe.redirectToCheckout({ sessionId });
-    if (result.error) {
-      console.error("Stripe Checkout error:", result.error.message);
-      alert("Failed to redirect to Stripe Checkout: " + result.error.message);
-    }
-  } catch (error) {
-    console.error("Settle Up error:", error.response?.data || error.message);
-    alert("An error occurred while settling up. Please try again later.");
-  }
-};
+  };
   
   const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete this expense?")) {
-      try {
-        await deleteExpense(expenseId);
-        // Remove expense from the context state using our helper function
-        removeExpenseFromContext(expenseId);
-        alert("Expense deleted!");
-        navigate("/dashboard?tab=expenses");
-      } catch (error) {
-        alert("Failed to delete expense.");
+    // Replace window.confirm with toast confirmation
+    toast.info(
+      <div>
+        <p>Are you sure you want to delete this expense?</p>
+        <button 
+          onClick={async () => {
+            try {
+              await deleteExpense(expenseId);
+              // Remove expense from the context state using our helper function
+              removeExpenseFromContext(expenseId);
+              toast.success("Expense deleted!");
+              
+              // Add timeout before navigation
+              setTimeout(() => {
+                navigate("/dashboard?tab=expenses"); // Redirect after a short delay
+              }, 3000);
+            } catch (error) {
+              toast.error("Failed to delete expense.");
+            }
+          }}
+          className="confirm-delete-btn"
+        >
+          Yes, Delete
+        </button>
+      </div>,
+      {
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+        closeButton: true
       }
-    }
+    );
   };
 
   const handleCashPayment = async () => {
@@ -227,53 +309,85 @@ const ExpenseDetails = () => {
       const currentUser = localStorage.getItem("userId");
   
       if (!expense || !expense.amount || expense.amount <= 0) {
-        alert("Invalid expense details or amount.");
+        toast.error("Invalid expense details or amount.");
         return;
       }
   
       if (expense.paidBy === currentUser) {
-        alert("You don't need to pay yourself.");
+        toast.info("You don't need to pay yourself.");
         return;
       }
   
       if (!expense.sharedWith || !expense.sharedWith.includes(currentUser)) {
-        alert("You are not a participant in this expense.");
+        toast.error("You are not a participant in this expense.");
         return;
       }
   
       const shareExact = parseFloat(expense.amount) / expense.sharedWith.length;
       const amountToPay = Math.round(shareExact);
-  
-      const confirm = window.confirm(`Confirm cash payment of ₹${amountToPay} to ${paidByUser?.name || 'payer'}?`);
-      if (!confirm) return;
-  
-      const transactionData = {
-        payerId: currentUser,
-        payeeId: expense.paidBy,
-        amount: amountToPay,
-        groupId: expense.groupId,
-        expenseId: expenseId,
-        method: "cash",
-      };
-  
-      await recordPayment(transactionData);
-      navigate("/dashboard?tab=transactions");
-  
-      // Optional: if one payment settles the whole transaction, update UI here
-      // e.g. mark expense as settled or disable buttons
+      
+      // Replace window.confirm with toast confirmation
+      toast.info(
+        <div>
+          <p>Confirm cash payment of ₹{amountToPay} to {paidByUser?.name || 'payer'}?</p>
+          <button 
+            onClick={async () => {
+              try {
+                const transactionData = {
+                  payerId: currentUser,
+                  payeeId: expense.paidBy,
+                  amount: amountToPay,
+                  groupId: expense.groupId,
+                  expenseId: expenseId,
+                  method: "cash",
+                };
+                
+                await recordPayment(transactionData);
+                
+                // Update the expense status in the context
+                updateExpenseSettledStatus(currentUser);
+                
+                toast.success("Cash payment recorded successfully!");
+                
+                // Add timeout before navigation
+                setTimeout(() => {
+                  navigate("/dashboard?tab=transactions"); // Redirect after a short delay
+                }, 3000);
+              } catch (error) {
+                console.error("Error recording cash payment:", error);
+                toast.error("Failed to record cash payment.");
+              }
+            }}
+            className="confirm-payment-btn"
+          >
+            Confirm Payment
+          </button>
+        </div>,
+        {
+          autoClose: false,
+          closeOnClick: false,
+          draggable: false,
+          closeButton: true
+        }
+      );
     } catch (error) {
       console.error("Error recording cash payment:", error);
-      alert("Failed to record cash payment.");
+      toast.error("Failed to record cash payment.");
     }
   };
-  
 
   if (loading) return <div>Loading expense details...</div>;
   if (error) return <div>{error}</div>;
   if (!expense) return <div>Expense not found.</div>;
 
+  // Check if current user has already settled this expense
+  const currentUser = localStorage.getItem("userId");
+  const hasUserSettled = expense.settledBy && expense.settledBy.includes(currentUser);
+  const isUserPayer = expense.paidBy === currentUser;
+
   return (
     <div className="background-expense">
+      <ToastContainer position="top-right" autoClose={5000} />
       <div className="expense-details-container">
         <div className="button-container">
           <button onClick={handleGoBack} className="back-button">
@@ -385,6 +499,9 @@ const ExpenseDetails = () => {
                   {sharedWithUsers.map((user, idx) => (
                     <li key={idx}>
                       {user && (user.name || user.email)}
+                      {expense.settledBy && expense.settledBy.includes(user._id || user.id) && (
+                        <span className="green-tick"> ✓ (Settled)</span>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -393,19 +510,29 @@ const ExpenseDetails = () => {
               )}
             </div>
 
-            {!isEditing && !expense.isSettled && (
+            {!isEditing && !isUserPayer && !hasUserSettled && (
               <div>
-  <button onClick={handleSettleUp} className="settle-up-button mx-4">
-    Settle Up
-  </button>
+                <button onClick={handleSettleUp} className="settle-up-button mx-4">
+                  Settle Up
+                </button>
 
-<button onClick={handleCashPayment} className="cash-payment-button">
-Record Cash Payment
-</button>
-</div>
-)}
-
-
+                <button onClick={handleCashPayment} className="cash-payment-button">
+                  Record Cash Payment
+                </button>
+              </div>
+            )}
+            
+            {hasUserSettled && (
+              <div className="settled-badge">
+                You have settled this expense
+              </div>
+            )}
+            
+            {isUserPayer && (
+              <div className="payer-badge">
+                You paid for this expense
+              </div>
+            )}
           </div>
         )}
       </div>

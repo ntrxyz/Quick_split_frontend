@@ -4,6 +4,8 @@ import { addUserToGroup } from "../../services/GroupService";
 import { getUserByEmail } from "../../services/userService";
 import { GroupsContext } from "../../context/GroupsContext";
 import img from "../../assets/adduser.jpg";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 import "./AddUserToAGroup.css";
 
 const AddUserToAGroup = () => {
@@ -15,7 +17,7 @@ const AddUserToAGroup = () => {
 
   const handleAddSingleEmail = async () => {
     if (!selectedGroup || !email.trim()) {
-      alert("⚠️ Please select a group and enter an email.");
+      toast.error("⚠️ Please select a group and enter an email.");
       return;
     }
 
@@ -26,12 +28,13 @@ const AddUserToAGroup = () => {
         await addUserToGroup(selectedGroup, user.id);
         setAddedEmails((prev) => [...prev, email.trim()]);
         setEmail("");
+        toast.success(`✅ User with email ${email.trim()} added successfully!`);
       } else {
-        alert(`❌ No user found with email: ${email}`);
+        toast.error(`❌ No user found with email: ${email}`);
       }
     } catch (err) {
       console.error("Error adding user:", err);
-      alert("❌ Something went wrong. Try again.");
+      toast.error("❌ Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -39,9 +42,9 @@ const AddUserToAGroup = () => {
 
   const handleSave = () => {
     if (addedEmails.length === 0) {
-      alert("⚠️ No users were added.");
+      toast.warning("⚠️ No users were added.");
     } else {
-      alert("✅ All users added to the group!");
+      toast.success("✅ All users added to the group!");
     }
 
     setSelectedGroup("");
@@ -86,14 +89,17 @@ const AddUserToAGroup = () => {
           ))}
         </ul>
 
-        <button onClick={handleSave} className="submit-btn">
-          Add to Group
+        <button onClick={handleSave} className="submit-btn" disabled={loading}>
+          {loading ? "Loading..." : "Add to Group"}
         </button>
       </div>
 
       <div className="add-user-right">
         <img src={img} alt="Add User" className="side-image" />
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
