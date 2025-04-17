@@ -115,35 +115,35 @@ export const getAllUserRelatedExpenses = async () => {
 
 // ✅ Mark an Expense as Settled  
 export const settleExpense = async (expenseId) => {
-  const userId = localStorage.getItem("userId");
-  if (!userId) {
-    throw new Error("No userId found in localStorage");
-  }
-  if (!expenseId) {
-    throw new Error("No expenseId provided to settleExpense");
-  }
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      throw new Error("No userId found in localStorage");
+    }
+    if (!expenseId) {
+      throw new Error("No expenseId provided to settleExpense");
+    }
   
-  console.log(`Sending settle request for expense ID: ${expenseId}, User ID: ${userId}`);
+    console.log(`Sending settle request for expense ID: ${expenseId}, User ID: ${userId}`);
   
-  try {
-    const response = await axios({
-      method: "patch",
-      url: `${API_URL}/${expenseId}/settle/${userId}`,
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeader(),
-      },
-    });
-    console.log("✅ Expense marked as settled:", response.data);
-    return response.data; // The API returns the updated expense with the updated 'settledBy' array
-  } catch (error) {
-    console.error(
-      "❌ Error marking expense as settled:",
-      error.response?.data || error.message
-    );
-    throw error;
-  }
-};
+    try {
+      const response = await axios({
+        method: "patch",
+        url: `${API_URL}/${expenseId}/settle/${userId}`,
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeader(),
+        },
+      });
+      console.log("✅ Expense marked as settled - full response:", response.data);
+      return response.data; // updated expense including the 'settledBy' array
+    } catch (error) {
+      console.error(
+        "❌ Error marking expense as settled:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  };
 
 // ✅ Update an Expense
 export const updateExpense = async (expenseId, updatedExpense) => {
