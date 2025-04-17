@@ -40,7 +40,13 @@ Quick-Split is a modern full-stack bill-splitting application that helps friends
 
 ## 📁 Project Structure
 
-📁 quick-split/ ├── backend/ │ └── src/main/java/com/billsplitter/... ├── frontend/ │ ├── src/components/ │ ├── src/pages/ │ ├── src/context/ │ └── App.js ├── README.md
+📁 quick-split/  ├── backend/ 
+                  │ └── src/main/java/com/billsplitter/... 
+                  ├── frontend/   ├── src/components/ 
+                                  ├── src/pages/  
+                                  ├── src/context/ 
+                  │ └── App.js 
+                  ├── README.md
 
 
 ---
@@ -64,6 +70,5 @@ Run the backend:
 
 ./mvnw spring-boot:run
 
----
 
-## 💻 Frontend Setup (React)
+## 🚀 Features
