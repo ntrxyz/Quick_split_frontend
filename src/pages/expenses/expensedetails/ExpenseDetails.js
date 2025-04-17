@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   getExpenseById,
-  updateExpense,
+  updateExpenseToSettle,
   deleteExpense,
 } from "../../../services/ExpenseService";
 import { getGroupById } from "../../../services/GroupService";

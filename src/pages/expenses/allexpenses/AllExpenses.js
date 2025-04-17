@@ -5,74 +5,91 @@ import "./AllExpenses.css";
 import { useExpenseContext } from "../../../context/ExpenseContext";
 import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
+import "react-toastify/dist/ReactToastify.css";
 
 const AllExpenses = () => {
-  const { expenses, loading } = useExpenseContext();
+  // Destructure settleExpenseInContext along with expenses and loading.
+  const { expenses, loading, settleExpenseInContext } = useExpenseContext();
   const [groupMap, setGroupMap] = useState({});
   const [userMap, setUserMap] = useState({});
-  const loggedInUserId = localStorage.getItem("userId"); // or you can get this from your Auth context
+  const [groupsLoading, setGroupsLoading] = useState(true);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const loggedInUserId = localStorage.getItem("userId")?.toString();
 
-  // Fetch groups and map group IDs to group names.
+  // Fetch and map group IDs to names
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const groupIds = [...new Set(expenses.map((exp) => exp.groupId))];
+        // Get unique group IDs and ensure conversion to strings.
+        const groupIds = [
+          ...new Set(expenses.map(exp => exp.groupId && exp.groupId.toString()))
+        ];
         const groupResponses = await Promise.all(
-          groupIds.map((id) => getGroupById(id))
+          groupIds.map(id => getGroupById(id))
         );
         const map = {};
-        groupResponses.forEach((group) => {
-          map[group._id || group.id] = group.name;
+        groupResponses.forEach(group => {
+          map[String(group._id || group.id)] = group.name;
         });
         setGroupMap(map);
-       
       } catch (error) {
         console.error("Error fetching group names:", error);
         toast.error("Failed to load group data. Please try again.");
+      } finally {
+        setGroupsLoading(false);
       }
     };
 
     if (expenses.length > 0) fetchGroups();
   }, [expenses]);
 
-  // Fetch user details for all unique user IDs across expenses.
+  // Fetch and map user IDs to names
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const uniqueUserIds = new Set();
-        expenses.forEach((exp) => {
-          if (exp.paidBy) uniqueUserIds.add(exp.paidBy);
+        expenses.forEach(exp => {
+          if (exp.paidBy) uniqueUserIds.add(exp.paidBy.toString());
           if (exp.sharedWith && Array.isArray(exp.sharedWith)) {
-            exp.sharedWith.forEach((id) => id && uniqueUserIds.add(id));
+            exp.sharedWith.forEach(id => id && uniqueUserIds.add(id.toString()));
           }
         });
         const userIds = Array.from(uniqueUserIds);
         const responses = await Promise.allSettled(
-          userIds.map((id) => getUserProfile(id))
+          userIds.map(id => getUserProfile(id))
         );
         const map = {};
-        responses.forEach((result) => {
+        responses.forEach(result => {
           if (result.status === "fulfilled") {
             const user = result.value;
-            map[user._id || user.id] = user.name || user.email;
+            map[String(user._id || user.id)] = user.name || user.email;
           }
         });
         setUserMap(map);
-        
       } catch (error) {
         console.error("Error fetching user details:", error);
         toast.error("Failed to load user data. Please try again.");
+      } finally {
+        setUsersLoading(false);
       }
     };
 
     if (expenses.length > 0) fetchUsers();
   }, [expenses]);
 
+  // Utility: Check if the logged-in user has settled the expense.
+  // Logs the settledBy array and the logged-in user ID for debugging.
+  const isSettledByUser = (expense) => {
+    if (!Array.isArray(expense.settledBy)) return false;
+    const settledIds = expense.settledBy.map(id => id.toString());
+    console.log("Expense:", expense.description, "| settledBy:", settledIds, "| loggedInUserId:", loggedInUserId);
+    return settledIds.includes(loggedInUserId);
+  };
+
   return (
     <div className="expenses-container">
       <h2>Your Expenses</h2>
-      {loading ? (
+      {loading || groupsLoading || usersLoading ? (
         <p>Loading expenses...</p>
       ) : expenses.length === 0 ? (
         <p>No expenses found.</p>
@@ -86,19 +103,34 @@ const AllExpenses = () => {
               return null;
             }
             const colorClass = `colorful-border-${index % 5}`;
+            const userSettled = isSettledByUser(expense);
+            const isPaidBy = expense.paidBy && expense.paidBy.toString() === loggedInUserId;
+
             return (
-              <Link
-                to={`/expenses/${expenseId}`}
-                key={expenseId}
-                className="expense-link"
-              >
+              <Link to={`/expenses/${expenseId}`} key={expenseId} className="expense-link">
                 <div className={`expense-card ${colorClass}`}>
-                  {expense.paidBy === loggedInUserId ? (
+                  {isPaidBy ? (
                     <span className="settleup-badge tick">You paid</span>
-                  ) : expense.settledBy?.includes(loggedInUserId) ? (
+                  ) : userSettled ? (
                     <span className="settleup-badge tick">Settled</span>
                   ) : (
-                    <span className="settleup-badge">Settle Up</span>
+                    <span
+                      className="settleup-badge clickable"
+                      onClick={(e) => {
+                        // Prevent navigation when clicking the settle badge.
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("Settle Up clicked for expense id:", expenseId);
+                        settleExpenseInContext(expenseId)
+                          .then(() => toast.success("Expense settled!"))
+                          .catch(err => {
+                            console.error("Error settling expense:", err);
+                            toast.error("Failed to settle expense.");
+                          });
+                      }}
+                    >
+                      Settle Up
+                    </span>
                   )}
 
                   <h3>{expense.description}</h3>
@@ -108,22 +140,17 @@ const AllExpenses = () => {
                   <p>
                     <strong>Paid By:</strong>{" "}
                     <span>
-                      {userMap[expense.paidBy] || expense.paidBy || "N/A"}
-                      {expense.settledBy &&
-                        expense.settledBy.length > 0 && (
-                          <span className="green-tick"> ✓</span>
-                        )}
+                      {userMap[String(expense.paidBy)] || expense.paidBy || "N/A"}
+                      {userSettled && <span className="green-tick"> ✓</span>}
                     </span>
                   </p>
                   <p>
-                    <strong>Group:</strong> {groupMap[expense.groupId] || "N/A"}
+                    <strong>Group:</strong> {groupMap[String(expense.groupId)] || "N/A"}
                   </p>
                   <p>
                     <strong>Shared With:</strong>{" "}
                     {expense.sharedWith && expense.sharedWith.length > 0
-                      ? expense.sharedWith
-                          .map((id) => userMap[id] || id)
-                          .join(", ")
+                      ? expense.sharedWith.map(id => userMap[String(id)] || id).join(", ")
                       : "None"}
                   </p>
                 </div>
@@ -132,9 +159,7 @@ const AllExpenses = () => {
           })}
         </div>
       )}
-
-      {/* Toast Container */}
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer />
     </div>
   );
 };

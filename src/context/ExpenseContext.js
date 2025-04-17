@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { getExpensesByUser, getAllUserRelatedExpenses } from "../services/ExpenseService";
+import {
+  getExpensesByUser,
+  getAllUserRelatedExpenses,
+  settleExpense,
+} from "../services/ExpenseService";
 
 const ExpenseContext = createContext();
 
@@ -11,8 +15,8 @@ export const ExpenseProvider = ({ children }) => {
   const fetchExpenses = async () => {
     try {
       console.log("Fetching all user-related expenses...");
-      
-      // Try to fetch all expenses related to the user through groups
+
+      // Attempt to fetch all expenses related to the user through groups
       let allExpenses = [];
       try {
         allExpenses = await getAllUserRelatedExpenses();
@@ -23,15 +27,17 @@ export const ExpenseProvider = ({ children }) => {
         allExpenses = await getExpensesByUser();
         console.log("Fetched user expenses (fallback):", allExpenses);
       }
-      
-      // Filter expenses to ensure user is involved (either payer or participant)
+
+      // Filter expenses to ensure the user is involved (either payer or participant)
+      // Also, mark if the current user has settled this expense based on the 'settledBy' array.
       const userRelatedExpenses = allExpenses.filter(expense => {
-        const isPayer = expense.paidBy === loggedInUserId;
-        const isParticipant = Array.isArray(expense.sharedWith) && 
-                             expense.sharedWith.includes(loggedInUserId);
+        const isPayer = String(expense.paidBy) === String(loggedInUserId);
+        const isParticipant =
+          Array.isArray(expense.sharedWith) &&
+          expense.sharedWith.some(id => String(id) === String(loggedInUserId));
         return isPayer || isParticipant;
       });
-      
+
       console.log("Final filtered user expenses:", userRelatedExpenses);
       setExpenses(userRelatedExpenses);
     } catch (error) {
@@ -42,13 +48,30 @@ export const ExpenseProvider = ({ children }) => {
     }
   };
 
-  // Function to remove an expense from the context by ID
-  const removeExpenseFromContext = (expenseId) => {
-    setExpenses((prevExpenses) =>
-      prevExpenses.filter(
-        (exp) => exp._id !== expenseId && exp.id !== expenseId
-      )
-    );
+  // Function to mark an expense as settled in context. This updates the expense
+  // with the response from the API, which includes the updated 'settledBy' array.
+  const settleExpenseInContext = async (expenseId) => {
+    try {
+      console.log(`Attempting to settle expense ID: ${expenseId}`);
+      const updatedExpense = await settleExpense(expenseId);
+      console.log("API returned updated expense:", updatedExpense);
+      
+      // Update expenses with the new settled expense
+      setExpenses(prevExpenses => 
+        prevExpenses.map(expense => {
+          const currentExpenseId = String(expense._id || expense.id);
+          const updatedExpenseId = String(updatedExpense._id || updatedExpense.id);
+          
+          return currentExpenseId === updatedExpenseId ? updatedExpense : expense;
+        })
+      );
+      
+      console.log(`✅ Expense ${expenseId} settled successfully in context.`);
+      return updatedExpense;
+    } catch (error) {
+      console.error("❌ Error settling expense in context:", error);
+      throw error;
+    }
   };
 
   // Fetch expenses once on initial render
@@ -63,7 +86,7 @@ export const ExpenseProvider = ({ children }) => {
         setExpenses,
         fetchExpenses,
         loading,
-        removeExpenseFromContext,
+        settleExpenseInContext, // Expose the settlement function
       }}
     >
       {children}
