@@ -2,7 +2,7 @@
 
 Quick-Split is a modern full-stack bill-splitting application that helps friends, roommates, or colleagues manage shared expenses effortlessly. Whether it's for a dinner, trip, or household, Quick-Split ensures everyone pays their fair share – with style and simplicity.
 
----
+
 
 ## 🚀 Features
 
@@ -15,7 +15,7 @@ Quick-Split is a modern full-stack bill-splitting application that helps friends
 - 📈 **Dashboard & Reports**
 - 📱 **Responsive UI**
 
----
+
 
 ## 🛠️ Tech Stack
 
@@ -36,7 +36,7 @@ Quick-Split is a modern full-stack bill-splitting application that helps friends
 ### 🗃️ Database
 - MongoDB (Cloud with MongoDB Atlas)
 
----
+
 
 ## 📁 Project Structure
 
@@ -49,7 +49,7 @@ Quick-Split is a modern full-stack bill-splitting application that helps friends
                   ├── README.md
 
 
----
+
 
 ## ⚙️ Setup Instructions
 
@@ -76,7 +76,7 @@ npm install
 2) Start the frontend:
    npm start
 
----
+
 ### 📲 API Endpoints
 
 Auth
@@ -116,7 +116,7 @@ POST /api/transactions – Stripe Payment
 
 GET /api/transactions/user/{userId}
 
----
+
 ### 🛣️ Roadmap
 
  Group creation & user management
@@ -135,7 +135,7 @@ GET /api/transactions/user/{userId}
 
  React Native mobile version
 
----
+
 
 ### ✨ Acknowledgements
 
@@ -147,10 +147,10 @@ MongoDB Atlas
 
 Spring Boot Framework
 
----
+
 
 ### 💡 “Split bills, not friendships.” – Team Quick-Split
 
 React + Context API
 
----
+
