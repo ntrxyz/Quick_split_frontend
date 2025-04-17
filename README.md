@@ -58,12 +58,12 @@ Quick-Split is a modern full-stack bill-splitting application that helps friends
 git clone https://github.com/your-username/quick-split.git
 cd quick-split/backend
 
-1) Update application.properties:
+- ### Update application.properties:
 spring.data.mongodb.uri=your-mongodb-uri
 jwt.secret=your-jwt-secret
 stripe.api.key=your-stripe-key
 
-2) Run the backend:
+- ### Run the backend:
  ./mvnw spring-boot:run
 
 ### 💻 Frontend Setup (React)
@@ -71,86 +71,74 @@ stripe.api.key=your-stripe-key
 cd ../frontend
 npm install
 
-1) Create a .env file:
+- ### Create a .env file:
    REACT_APP_API_URL=http://localhost:8080/api
-2) Start the frontend:
+- ### Start the frontend:
    npm start
 
 
 ### 📲 API Endpoints
 
-Auth
-POST /api/auth/register
+### Auth
+- POST /api/auth/register
+- POST /api/auth/login
 
-POST /api/auth/login
+### Users
+- GET /api/users/{id}
+- GET /api/users/email/{email}
 
-Users
-GET /api/users/{id}
+### Groups
+- POST /api/groups
+- GET /api/groups/user/{userId}
+- PUT /api/groups/{groupId}
+- DELETE /api/groups/{groupId}
+- POST /api/groups/{groupId}/addUser
+- DELETE /api/groups/{groupId}/removeUser/{userId}
 
-GET /api/users/email/{email}
+### Expenses
+- POST /api/expenses
+- GET /api/expenses/group/{groupId}
+- PUT /api/expenses/{expenseId}
+- DELETE /api/expenses/{expenseId}
 
-Groups
-POST /api/groups
-
-GET /api/groups/user/{userId}
-
-PUT /api/groups/{groupId}
-
-DELETE /api/groups/{groupId}
-
-POST /api/groups/{groupId}/addUser
-
-DELETE /api/groups/{groupId}/removeUser/{userId}
-
-Expenses
-POST /api/expenses
-
-GET /api/expenses/group/{groupId}
-
-PUT /api/expenses/{expenseId}
-
-DELETE /api/expenses/{expenseId}
-
-Transactions
-POST /api/transactions – Stripe Payment
-
-GET /api/transactions/user/{userId}
+### Transactions
+- POST /api/transactions – Stripe Payment
+- GET /api/transactions/user/{userId}
 
 
 ### 🛣️ Roadmap
 
- Group creation & user management
+ - Group creation & user management
 
- Add/edit/delete expenses
+ - Add/edit/delete expenses
 
- Real-time expense updates
+- Real-time expense updates
 
- Stripe payment integration
+ - Stripe payment integration
 
- Transaction context & history
+ - Transaction context & history
 
- Notification system
+ - Notification system
 
- Export PDF/CSV report
+ - Export PDF/CSV report
 
- React Native mobile version
+ - React Native mobile version
 
 
 
 ### ✨ Acknowledgements
 
-Splitwise (for the inspiration)
+- Splitwise (for the inspiration)
 
-Stripe API
+- Stripe API
 
-MongoDB Atlas
+- MongoDB Atlas
 
-Spring Boot Framework
+- Spring Boot Framework
 
 
 
 ### 💡 “Split bills, not friendships.” – Team Quick-Split
 
-React + Context API
 
 
