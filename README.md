@@ -55,20 +55,102 @@ Quick-Split is a modern full-stack bill-splitting application that helps friends
 
 ### 🧪 Backend Setup (Spring Boot)
 
-```bash
 git clone https://github.com/your-username/quick-split.git
 cd quick-split/backend
 
-Update application.properties:
-
+1) Update application.properties:
 spring.data.mongodb.uri=your-mongodb-uri
 jwt.secret=your-jwt-secret
 stripe.api.key=your-stripe-key
 
+2) Run the backend:
+ ./mvnw spring-boot:run
 
-Run the backend:
+### 💻 Frontend Setup (React)
 
-./mvnw spring-boot:run
+cd ../frontend
+npm install
 
+1) Create a .env file:
+   REACT_APP_API_URL=http://localhost:8080/api
+2) Start the frontend:
+   npm start
 
-## 🚀 Features
+---
+### 📲 API Endpoints
+
+Auth
+POST /api/auth/register
+
+POST /api/auth/login
+
+Users
+GET /api/users/{id}
+
+GET /api/users/email/{email}
+
+Groups
+POST /api/groups
+
+GET /api/groups/user/{userId}
+
+PUT /api/groups/{groupId}
+
+DELETE /api/groups/{groupId}
+
+POST /api/groups/{groupId}/addUser
+
+DELETE /api/groups/{groupId}/removeUser/{userId}
+
+Expenses
+POST /api/expenses
+
+GET /api/expenses/group/{groupId}
+
+PUT /api/expenses/{expenseId}
+
+DELETE /api/expenses/{expenseId}
+
+Transactions
+POST /api/transactions – Stripe Payment
+
+GET /api/transactions/user/{userId}
+
+---
+### 🛣️ Roadmap
+
+ Group creation & user management
+
+ Add/edit/delete expenses
+
+ Real-time expense updates
+
+ Stripe payment integration
+
+ Transaction context & history
+
+ Notification system
+
+ Export PDF/CSV report
+
+ React Native mobile version
+
+---
+
+### ✨ Acknowledgements
+
+Splitwise (for the inspiration)
+
+Stripe API
+
+MongoDB Atlas
+
+Spring Boot Framework
+
+---
+
+### 💡 “Split bills, not friendships.” – Team Quick-Split
+
+React + Context API
+
+---
