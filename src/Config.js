@@ -3,7 +3,7 @@ export const getAuthToken = () => {
 };  
 
 const config = {
-  backendUrl: "http://localhost:8080/api", // Update this when deploying
+  backendUrl: "https://quick-split-backend.onrender.com/api", // Update this when deploying
 };
 
 export default config;
